@@ -2,6 +2,8 @@ package com.grvmishra788.remindtodo.basic;
 
 import android.util.Log;
 
+import com.grvmishra788.remindtodo.R;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -9,9 +11,6 @@ import java.util.UUID;
 public class ToDoItem {
 
     //constants
-    public static final int CATEGORY_FINISHED = 0;
-    public static final int CATEGORY_ONGOING = 1;
-    public static final int CATEGORY_UPCOMING = 2;
     private static final String TAG = ToDoItem.class.getName();
 
     //ToDoItem variables
@@ -22,24 +21,24 @@ public class ToDoItem {
 
     //constructor
     public ToDoItem(String mItemDescription, Date mItemDate, int mItemCategory){
-        Log.d(TAG, "ToDoItem Constructor starts");
+        Log.d(TAG, TAG + ": Constructor starts");
         this.mItemDescription = mItemDescription;
         this.mItemDate = mItemDate;
         this.mItemCategory = mItemCategory;
         this.mItemID = UUID.randomUUID();
-        Log.d(TAG, "ToDoItem Constructor ends");
+        Log.d(TAG, TAG + ": Constructor ends");
     }
 
     //overloaded constructor 1
     public ToDoItem(String mItemDescription, Date mItemDate){
         //by default item is marked to be ONGOING
-        this(mItemDescription, mItemDate, CATEGORY_ONGOING);
+        this(mItemDescription, mItemDate, R.drawable.ic_ongoing);
     }
 
     //overloaded constructor 2
     public ToDoItem(String mItemDescription){
         //by default item's date is set to be the EOD of ongoing day
-        this(mItemDescription, new Date(Calendar.getInstance().YEAR,Calendar.getInstance().MONTH, Calendar.getInstance().DATE, 23, 59, 59 ), CATEGORY_ONGOING);
+        this(mItemDescription, new Date(Calendar.getInstance().YEAR,Calendar.getInstance().MONTH, Calendar.getInstance().DATE, 23, 59, 59 ), R.drawable.ic_ongoing);
     }
 
     //accessor methods

@@ -6,11 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No ToDos to show !"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="16dp"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="4dp"
+        android:background="@color/cardview_dark_background"
+        android:scrollbars="vertical"/>
 
 </LinearLayout>
