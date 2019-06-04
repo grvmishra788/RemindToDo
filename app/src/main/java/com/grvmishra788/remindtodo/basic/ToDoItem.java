@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class ToDoItem {
 
-    //constants
+    //constant Class TAG
     private static final String TAG = ToDoItem.class.getName();
 
     //ToDoItem variables
