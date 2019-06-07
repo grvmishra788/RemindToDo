@@ -20,25 +20,34 @@ public class ToDoItem {
     private UUID mItemID;
 
     //constructor
-    public ToDoItem(String mItemDescription, Date mItemDate, int mItemCategory){
+    public ToDoItem(String mItemDescription){
         Log.d(TAG, TAG + ": Constructor starts");
         this.mItemDescription = mItemDescription;
-        this.mItemDate = mItemDate;
-        this.mItemCategory = mItemCategory;
+
+        //by default item's date is set to be the EOD of ongoing day
+        this.mItemDate = Utilities.getEndOfDay();
+        //by default item is marked to be ONGOING
+        this.mItemCategory = R.drawable.ic_ongoing;
+        //by default item is given a random ID
         this.mItemID = UUID.randomUUID();
         Log.d(TAG, TAG + ": Constructor ends");
     }
 
     //overloaded constructor 1
     public ToDoItem(String mItemDescription, Date mItemDate){
-        //by default item is marked to be ONGOING
-        this(mItemDescription, mItemDate, R.drawable.ic_ongoing);
-    }
+        this(mItemDescription);
+        this.mItemDate = mItemDate;
 
-    //overloaded constructor 2
-    public ToDoItem(String mItemDescription){
-        //by default item's date is set to be the EOD of ongoing day
-        this(mItemDescription, new Date(Calendar.getInstance().YEAR,Calendar.getInstance().MONTH, Calendar.getInstance().DATE, 23, 59, 59 ), R.drawable.ic_ongoing);
+        //mark item category based on its date
+        if(mItemDate.before(Utilities.getStartOfDay())){
+            //mark item as overdue if its date is before start of the current day
+            this.mItemCategory = R.drawable.ic_overdue;
+        }
+        else if(mItemDate.after(Utilities.getEndOfDay()) && !mItemDate.equals(Utilities.getEndOfDay())){
+            //mark item as upcoming if its date is after end of the current day
+            this.mItemCategory = R.drawable.ic_upcoming;
+            Log.d(TAG, TAG + ": Parametes set by default Constructor modified");
+        }
     }
 
     //accessor methods

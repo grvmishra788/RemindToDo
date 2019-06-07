@@ -38,6 +38,10 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     private ToDoItem mRecentlyDeletedItem;
     private int mRecentlyDeletedItemPosition;
 
+    public void markToDoCompleted(int position) {
+        mToDoItems.get(position).setmItemCategory(R.drawable.ic_finished);
+    }
+
 
     //ToDoItemViewHolder nested class : holds RecyclerView elements defined in layout_todoitem.xml
     public static class ToDoItemViewHolder extends RecyclerView.ViewHolder{

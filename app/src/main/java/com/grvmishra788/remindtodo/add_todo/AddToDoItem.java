@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.grvmishra788.remindtodo.MainActivity;
 import com.grvmishra788.remindtodo.R;
 import com.grvmishra788.remindtodo.basic.ToDoItem;
+import com.grvmishra788.remindtodo.basic.Utilities;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -124,10 +125,13 @@ public class AddToDoItem extends AppCompatActivity implements DatePickerDialog.O
         }
         else{
 
+            //by default item's date is set to be the EOD of ongoing day, if user didnt specify it
+            if(mDate==null) mDate= Utilities.getEndOfDay();
+
             //else create a new intent to pass available info about ToDoItem back to MainActivity
             Intent mToDoItemIntent = new Intent();
             mToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItemDescription);
-            mToDoItemIntent.putExtra(EXTRA_DATE, (mDate!=null)?mDate.getTime():null);
+            mToDoItemIntent.putExtra(EXTRA_DATE, mDate.getTime());
             setResult(RESULT_OK, mToDoItemIntent);
 
             //finish current activity

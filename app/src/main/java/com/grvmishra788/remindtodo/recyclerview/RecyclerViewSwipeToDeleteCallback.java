@@ -49,6 +49,9 @@ public class RecyclerViewSwipeToDeleteCallback extends ItemTouchHelper.SimpleCal
             mToDoItemAdapter.deleteItem(position);
         }
         else{
+            if(i==ItemTouchHelper.RIGHT){
+                mToDoItemAdapter.markToDoCompleted(position);
+            }
             Log.d(TAG, "onSwiped() called at position: "+Integer.toString(position)+" in RecyclerView in RIGHT/NO SWIPE dir");
             mToDoItemAdapter.notifyItemChanged(position);
         }
