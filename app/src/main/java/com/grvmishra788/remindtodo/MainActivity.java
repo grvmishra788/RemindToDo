@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -21,6 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import com.grvmishra788.remindtodo.add_todo.AddToDoItem;
 import com.grvmishra788.remindtodo.basic.ToDoItem;
 import com.grvmishra788.remindtodo.basic.Utilities;
+import com.grvmishra788.remindtodo.recyclerview.RecyclerViewSwipeToDeleteCallback;
 import com.grvmishra788.remindtodo.recyclerview.ToDoItemAdapter;
 
 import java.lang.reflect.Type;
@@ -42,13 +44,13 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mRecyclerViewLayoutManager;
 
     //ToDoItems list
-    ArrayList<ToDoItem> mToDoItems;
+    private ArrayList<ToDoItem> mToDoItems;
 
     //SharedPreferences variable
-    SharedPreferences mSharedPreferences;
+    private SharedPreferences mSharedPreferences;
 
     //FloatingActionButton variable
-    FloatingActionButton mButton;
+    private FloatingActionButton mButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +83,12 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerview = (RecyclerView) findViewById(R.id.recyclerView);
         mRecyclerview.setHasFixedSize(true);    //hasFixedSize=true increases app performance as Recyclerview is not going to change in size
         mRecyclerViewLayoutManager = new LinearLayoutManager(this);
-        mRecyclerViewAdapter = new ToDoItemAdapter(mToDoItems);
+        mRecyclerViewAdapter = new ToDoItemAdapter(this, mSharedPreferences, mToDoItems);
         mRecyclerview.setLayoutManager(mRecyclerViewLayoutManager);
         mRecyclerview.setAdapter(mRecyclerViewAdapter);
+
+        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(new RecyclerViewSwipeToDeleteCallback((ToDoItemAdapter) mRecyclerViewAdapter));
+        mItemTouchHelper.attachToRecyclerView(mRecyclerview);
 
 
     }
