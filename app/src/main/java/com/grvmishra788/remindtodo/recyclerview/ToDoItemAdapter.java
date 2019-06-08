@@ -26,6 +26,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     private static final String TAG = ToDoItemAdapter.class.getName(); //constant Class TAG
     private static final int UNDO_TODO_COMPLETED = 0;
     private static final int UNDO_TODO_DELETED = 1;
+    private static final int UNDO_TODO_ALREADY_COMPLETED = 2;
 
     //Variable to store context from which Adapter has been called
     private Context mContext;
@@ -44,13 +45,19 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     private int mRecentlyCompletedItemPosition, mRecentlyCompletedItemCategory;
 
     public void markToDoCompleted(int position) {
-        mRecentlyCompletedItemCategory = mToDoItems.get(position).getmItemCategory();
-        mRecentlyCompletedItemPosition = position;
-        mToDoItems.get(position).setmItemCategory(R.drawable.ic_finished);
-        Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+        if(mToDoItems.get(position).getmItemCategory() == R.drawable.ic_finished){
+            //once an item is completed our undo Snackbar should appear
+            showUndoSnackbar(UNDO_TODO_ALREADY_COMPLETED);
+        }
+        else{
+            mRecentlyCompletedItemCategory = mToDoItems.get(position).getmItemCategory();
+            mRecentlyCompletedItemPosition = position;
+            mToDoItems.get(position).setmItemCategory(R.drawable.ic_finished);
+            Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
 
-        //once an item is completed our undo Snackbar should appear
-        showUndoSnackbar(UNDO_TODO_COMPLETED);
+            //once an item is completed our undo Snackbar should appear
+            showUndoSnackbar(UNDO_TODO_COMPLETED);
+        }
     }
 
 
@@ -132,7 +139,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
                 }
             });
         }
-        else{ //if ToDoItem Deleted
+        else if(type==UNDO_TODO_DELETED){ //if ToDoItem Deleted
             snackbar = Snackbar.make(view, "1 ToDo Deleted", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
@@ -140,6 +147,9 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
                     undoDelete();
                 }
             });
+        }
+        else { //if ToDoItem Already Completed
+            snackbar = Snackbar.make(view, "ToDo already completed", Snackbar.LENGTH_LONG);
         }
         snackbar.show();
     }

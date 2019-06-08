@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //int SharedPreferences variable
+        //init SharedPreferences variable
         mSharedPreferences = getSharedPreferences("ToDoList Shared Preferences", MODE_PRIVATE);
 
         //load mTodoItems From Shared Preferences
