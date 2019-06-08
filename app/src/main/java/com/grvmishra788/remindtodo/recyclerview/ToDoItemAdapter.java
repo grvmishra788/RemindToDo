@@ -22,8 +22,10 @@ import java.util.ArrayList;
 
 public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoItemViewHolder> {
 
-    //constant Class TAG
-    private static final String TAG = ToDoItemAdapter.class.getName();
+    //constants
+    private static final String TAG = ToDoItemAdapter.class.getName(); //constant Class TAG
+    private static final int UNDO_TODO_COMPLETED = 0;
+    private static final int UNDO_TODO_DELETED = 1;
 
     //Variable to store context from which Adapter has been called
     private Context mContext;
@@ -34,12 +36,21 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     //Variable for accessing SharedPreferences in ToDoItemAdapter
     private SharedPreferences mSharedPreferences;
 
-    //Variables to store last deleted item incase of undo
+    //Variables to store last deleted item details incase of undo
     private ToDoItem mRecentlyDeletedItem;
     private int mRecentlyDeletedItemPosition;
 
+    //Variables to store last completed item details incase of undo
+    private int mRecentlyCompletedItemPosition, mRecentlyCompletedItemCategory;
+
     public void markToDoCompleted(int position) {
+        mRecentlyCompletedItemCategory = mToDoItems.get(position).getmItemCategory();
+        mRecentlyCompletedItemPosition = position;
         mToDoItems.get(position).setmItemCategory(R.drawable.ic_finished);
+        Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+
+        //once an item is completed our undo Snackbar should appear
+        showUndoSnackbar(UNDO_TODO_COMPLETED);
     }
 
 
@@ -105,28 +116,50 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         notifyItemRemoved(position);
 
         //once an item is deleted our undo Snackbar should appear
-        showUndoSnackbar();
+        showUndoSnackbar(UNDO_TODO_DELETED);
     }
 
-    private void showUndoSnackbar() {
+    private void showUndoSnackbar(int type) {
         Log.d(TAG, "Undo Snackbar Shown");
         View view = ((Activity)mContext).findViewById(R.id.main_relative_layout);
-        Snackbar snackbar = Snackbar.make(view, "1 ToDo Deleted",
-                Snackbar.LENGTH_LONG);
-        snackbar.setAction("UNDO", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                undoDelete();
-            }
-        });
+        Snackbar snackbar;
+        if(type==UNDO_TODO_COMPLETED){//If ToDoITem Completed
+            snackbar = Snackbar.make(view, "1 ToDo Completed", Snackbar.LENGTH_LONG);
+            snackbar.setAction("UNDO", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    undoComplete();
+                }
+            });
+        }
+        else{ //if ToDoItem Deleted
+            snackbar = Snackbar.make(view, "1 ToDo Deleted", Snackbar.LENGTH_LONG);
+            snackbar.setAction("UNDO", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    undoDelete();
+                }
+            });
+        }
         snackbar.show();
     }
 
+    //function to undo most recent ToDoItem completion
+    private void undoComplete() {
+        Log.d(TAG, "Undo Complete Action started for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
+        mToDoItems.get(mRecentlyCompletedItemPosition).setmItemCategory(mRecentlyCompletedItemCategory);
+        Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+        notifyItemChanged(mRecentlyCompletedItemPosition);
+        Log.d(TAG, "Undo Complete Action completed for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
+
+    }
+
+    //function to undo most recent ToDoItem deletion
     private void undoDelete() {
-        Log.d(TAG, "Undo Action started for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
+        Log.d(TAG, "Undo Delete Action started for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
         mToDoItems.add(mRecentlyDeletedItemPosition, mRecentlyDeletedItem);
         Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
         notifyItemInserted(mRecentlyDeletedItemPosition);
-        Log.d(TAG, "Undo Action completed for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
+        Log.d(TAG, "Undo Delete Action completed for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
     }
 }
