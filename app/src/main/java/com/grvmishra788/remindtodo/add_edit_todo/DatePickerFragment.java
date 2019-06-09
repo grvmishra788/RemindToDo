@@ -1,4 +1,4 @@
-package com.grvmishra788.remindtodo.add_todo;
+package com.grvmishra788.remindtodo.add_edit_todo;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -7,8 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
-
-import com.grvmishra788.remindtodo.MainActivity;
 
 import java.util.Calendar;
 

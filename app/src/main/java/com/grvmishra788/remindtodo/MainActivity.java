@@ -1,6 +1,5 @@
 package com.grvmishra788.remindtodo;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
@@ -12,31 +11,28 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.grvmishra788.remindtodo.add_todo.AddToDoItem;
+import com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity;
 import com.grvmishra788.remindtodo.basic.ToDoItem;
 import com.grvmishra788.remindtodo.basic.Utilities;
+import com.grvmishra788.remindtodo.recyclerview.OnToDoItemClickListener;
 import com.grvmishra788.remindtodo.recyclerview.RecyclerViewSwipeToDeleteCallback;
 import com.grvmishra788.remindtodo.recyclerview.ToDoItemAdapter;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
-import static android.widget.Toast.LENGTH_SHORT;
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DATE;
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DESCRIPTION;
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_POSITION;
 
 public class MainActivity extends AppCompatActivity {
 
     //contants
     private static final String TAG = MainActivity.class.getName();     //constant Class TAG
     public static final int ADD_TO_DO_ITEM = 1;
+    public static final int EDIT_TO_DO_ITEM = 2;
 
     //recyclerView variables
     private RecyclerView mRecyclerview;
@@ -64,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         mToDoItems = Utilities.loadToDoListFromSharedPreferences(mSharedPreferences);
 
         //init mToDoItems if there are no ToDos saved already
-        if(mToDoItems==null){
+        if (mToDoItems == null) {
             mToDoItems = new ArrayList<>();
         }
 
@@ -74,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent mToDoItemIntent = new Intent(MainActivity.this, AddToDoItem.class);
+                Intent mToDoItemIntent = new Intent(MainActivity.this, AddOrEditToDoItemActivity.class);
                 startActivityForResult(mToDoItemIntent, ADD_TO_DO_ITEM);
             }
         });
@@ -90,26 +86,65 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(new RecyclerViewSwipeToDeleteCallback((ToDoItemAdapter) mRecyclerViewAdapter));
         mItemTouchHelper.attachToRecyclerView(mRecyclerview);
 
+        ((ToDoItemAdapter) mRecyclerViewAdapter).setOnToDoItemClickListener(new OnToDoItemClickListener() {
+            @Override
+            public void onToDoItemClick(int position) {
+                ToDoItem mToDoItem = mToDoItems.get(position);
+                Intent mEditToDoItemIntent = new Intent(MainActivity.this, AddOrEditToDoItemActivity.class);
+                mEditToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItem.getmItemDescription());
+                mEditToDoItemIntent.putExtra(EXTRA_DATE, mToDoItem.getmItemDate().getTime());
+                mEditToDoItemIntent.putExtra(EXTRA_POSITION, position);
+                startActivityForResult(mEditToDoItemIntent, EDIT_TO_DO_ITEM);
+            }
+        });
+
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Log.d(TAG, "onActivityResult called for requestCode = "+Integer.toString(requestCode));
+        Log.d(TAG, "onActivityResult called for requestCode = " + Integer.toString(requestCode));
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == ADD_TO_DO_ITEM && resultCode == RESULT_OK){
-            //obtain ToDoItemDescription from mEditTExt
-            String mToDoItemDescription = data.getStringExtra(AddToDoItem.EXTRA_DESCRIPTION);
-            Date mDate = new Date(data.getExtras().getLong(AddToDoItem.EXTRA_DATE));
-            if(mDate!=null){
+        if (requestCode == ADD_TO_DO_ITEM && resultCode == RESULT_OK) {
+
+            //obtain mToDoItemDescription & mToDoItemDate
+            String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
+            Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
+
+            if (mDate != null) {
                 mToDoItems.add(new ToDoItem(mToDoItemDescription, mDate));
             }
-            else{
+            else {
                 mToDoItems.add(new ToDoItem(mToDoItemDescription));
             }
+
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
-            Log.d(TAG, "onActivityResult completed for requestCode = "+Integer.toString(requestCode));
+            Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
+        }
+        else if (requestCode == EDIT_TO_DO_ITEM && resultCode == RESULT_OK) {
+
+            int position = data.getIntExtra(EXTRA_POSITION, -1);
+            if (position!=-1) {
+
+                String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
+                Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
+
+                //make changes to the ToDoItem
+                ToDoItem mItemToChange = mToDoItems.get(position);
+                mItemToChange.setmItemDescription(mToDoItemDescription);
+                mItemToChange.setmItemDate(mDate);
+                mToDoItems.set(position, mItemToChange);
+                Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+                mRecyclerViewAdapter.notifyItemChanged(position);
+
+                Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
+            }
+            else {
+                Toast.makeText(this, "ToDo Item can't be updated", Toast.LENGTH_LONG);
+            }
+        } else {
+            Toast.makeText(this, "ToDo Item not saved", Toast.LENGTH_LONG);
         }
     }
 }

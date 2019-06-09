@@ -1,4 +1,4 @@
-package com.grvmishra788.remindtodo.add_todo;
+package com.grvmishra788.remindtodo.add_edit_todo;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -10,30 +10,29 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.grvmishra788.remindtodo.MainActivity;
 import com.grvmishra788.remindtodo.R;
-import com.grvmishra788.remindtodo.basic.ToDoItem;
 import com.grvmishra788.remindtodo.basic.Utilities;
 
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class AddToDoItem extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class AddOrEditToDoItemActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     //constant strings
-    private static final String TAG = AddToDoItem.class.getName();  //constant Class TAG
+    private static final String TAG = AddOrEditToDoItemActivity.class.getName();  //constant Class TAG
     public static final String EXTRA_DESCRIPTION = "com.grvmishra788.remindtodo.add_todo.EXTRA_DESCRIPTION";
     public static final String EXTRA_DATE = "com.grvmishra788.remindtodo.add_todo.EXTRA_DATE";
+    public static final String EXTRA_POSITION = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_POSITION";
 
     //EditText variables
     private EditText mEditText;
@@ -45,9 +44,12 @@ public class AddToDoItem extends AppCompatActivity implements DatePickerDialog.O
     //DAte variables
     Date mDate;
 
+    //Variable to store the intent which started the activity
+    Intent mActivityStartingIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate() called for "+TAG);
+        Log.d(TAG, "onCreate() called for " + TAG);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_to_do_item);
 
@@ -68,13 +70,27 @@ public class AddToDoItem extends AppCompatActivity implements DatePickerDialog.O
         });
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_activity);
-        setTitle("Add ToDo Item");
+
+        //catch the intent which started the activity
+        mActivityStartingIntent = getIntent();
+
+        //check if this intent was sent to Edit or Add ToDoItem and set title accordingly
+        if (mActivityStartingIntent.hasExtra(EXTRA_POSITION)) {
+            setTitle("Edit ToDo Item");
+            //incase intent was sent to Edit ToDoItem, set textviews with existing values
+            mEditText.setText(mActivityStartingIntent.getStringExtra(EXTRA_DESCRIPTION));
+            Date mExistingDate = new Date(mActivityStartingIntent.getExtras().getLong(EXTRA_DATE));
+            String mDateString = DateFormat.getDateInstance(DateFormat.FULL).format(mExistingDate);
+            mEditDate.setText(mDateString);
+        } else {
+            setTitle("Add ToDo Item");
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
-        Log.d(TAG, "onCreateOptionsMenu() called for AddToDoItem menu");
+        Log.d(TAG, "onCreateOptionsMenu() called for AddOrEditToDoItemActivity menu");
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.save_todoitem_menu, menu);
         return super.onCreateOptionsMenu(menu);
@@ -82,17 +98,18 @@ public class AddToDoItem extends AppCompatActivity implements DatePickerDialog.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG, "onOptionsItemSelected() called for AddToDoItem menu");
+        Log.d(TAG, "onOptionsItemSelected() called for AddOrEditToDoItemActivity menu");
         // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id.saveToDoItem:
-                Log.d(TAG, "saveToDoItem selected for AddToDoItem menu");
+                Log.d(TAG, "saveToDoItem selected for AddOrEditToDoItemActivity menu");
                 saveToDoItem();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
         Log.d(TAG, "OnDateSetListener() called");
@@ -113,26 +130,31 @@ public class AddToDoItem extends AppCompatActivity implements DatePickerDialog.O
         Log.d(TAG, "OnDateSetListener() call completed");
     }
 
-    private void saveToDoItem(){
+    private void saveToDoItem() {
         Log.d(TAG, "saveToDoItem() called.");
 
         //get ToDOItem description from mEditText
         String mToDoItemDescription = mEditText.getText().toString();
 
-        if(mToDoItemDescription.trim().isEmpty()){
+        if (mToDoItemDescription.trim().isEmpty()) {
             //if this description is null, popup a toast to notify the user
             Toast.makeText(getApplicationContext(), "No ToDo to save", LENGTH_SHORT).show();
-        }
-        else{
+        } else {
 
             //by default item's date is set to be the EOD of ongoing day, if user didnt specify it
-            if(mDate==null) mDate= Utilities.getEndOfDay();
+            if (mDate == null) mDate = Utilities.getEndOfDay();
 
             //else create a new intent to pass available info about ToDoItem back to MainActivity
             Intent mToDoItemIntent = new Intent();
             mToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItemDescription);
             mToDoItemIntent.putExtra(EXTRA_DATE, mDate.getTime());
             setResult(RESULT_OK, mToDoItemIntent);
+
+            //put this position into intent only if it has been started by an Edit ToDoItem Intent
+            int position = mActivityStartingIntent.getIntExtra(EXTRA_POSITION, -1);
+            if(position!=-1){
+                mToDoItemIntent.putExtra(EXTRA_POSITION, position);
+            }
 
             //finish current activity
             finish();

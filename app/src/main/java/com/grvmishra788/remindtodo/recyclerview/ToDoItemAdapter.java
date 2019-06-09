@@ -44,25 +44,12 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     //Variables to store last completed item details incase of undo
     private int mRecentlyCompletedItemPosition, mRecentlyCompletedItemCategory;
 
-    public void markToDoCompleted(int position) {
-        if(mToDoItems.get(position).getmItemCategory() == R.drawable.ic_finished){
-            //once an item is completed our undo Snackbar should appear
-            showUndoSnackbar(UNDO_TODO_ALREADY_COMPLETED);
-        }
-        else{
-            mRecentlyCompletedItemCategory = mToDoItems.get(position).getmItemCategory();
-            mRecentlyCompletedItemPosition = position;
-            mToDoItems.get(position).setmItemCategory(R.drawable.ic_finished);
-            Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
-
-            //once an item is completed our undo Snackbar should appear
-            showUndoSnackbar(UNDO_TODO_COMPLETED);
-        }
-    }
+    //Variable to store OnToDoItemClickListener
+    private OnToDoItemClickListener mOnToDoItemClickListener;
 
 
     //ToDoItemViewHolder nested class : holds RecyclerView elements defined in layout_todoitem.xml
-    public static class ToDoItemViewHolder extends RecyclerView.ViewHolder{
+    public class ToDoItemViewHolder extends RecyclerView.ViewHolder {
         public ImageView mImageView;
         public TextView mTextView1, mTextView2;
 
@@ -71,11 +58,22 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
             mImageView = itemView.findViewById(R.id.imageView);
             mTextView1 = itemView.findViewById(R.id.textView1);
             mTextView2 = itemView.findViewById(R.id.textView2);
+
+            //perform necessary ops if current item is clicked
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if (mOnToDoItemClickListener != null && position != RecyclerView.NO_POSITION) {
+                        mOnToDoItemClickListener.onToDoItemClick(position);
+                    }
+                }
+            });
         }
     }
 
     //Constructor: binds ToDoItem object data to ToDoItemAdapter
-    public ToDoItemAdapter(Context mContext, SharedPreferences mSharedPreferences, ArrayList<ToDoItem> mToDoItems){
+    public ToDoItemAdapter(Context mContext, SharedPreferences mSharedPreferences, ArrayList<ToDoItem> mToDoItems) {
         Log.d(TAG, TAG + ": Constructor starts");
         this.mContext = mContext;
         this.mSharedPreferences = mSharedPreferences;
@@ -95,12 +93,12 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
 
     @Override
     public void onBindViewHolder(@NonNull ToDoItemViewHolder mToDoItemViewHolder, int index) {
-        Log.d(TAG, "Started binding corresponding View Holder to "+Integer.toString(index)+"-th ToDoItem.");
+        Log.d(TAG, "Started binding corresponding View Holder to " + Integer.toString(index) + "-th ToDoItem.");
         ToDoItem currentToDoItem = mToDoItems.get(index);
         mToDoItemViewHolder.mImageView.setImageResource(currentToDoItem.getmItemCategory());
         mToDoItemViewHolder.mTextView1.setText(currentToDoItem.getmItemDescription());
         mToDoItemViewHolder.mTextView2.setText(new SimpleDateFormat("MMM dd, YYYY - hh:mm:ss").format(currentToDoItem.getmItemDate()).toString().trim());
-        Log.d(TAG, "Completed binding corresponding View Holder to "+Integer.toString(index)+"-th ToDoItem.");
+        Log.d(TAG, "Completed binding corresponding View Holder to " + Integer.toString(index) + "-th ToDoItem.");
     }
 
     @Override
@@ -112,14 +110,29 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         return this.mContext;
     }
 
+    public void markToDoCompleted(int position) {
+        if (mToDoItems.get(position).getmItemCategory() == R.drawable.ic_finished) {
+            //once an item is completed our undo Snackbar should appear
+            showUndoSnackbar(UNDO_TODO_ALREADY_COMPLETED);
+        } else {
+            mRecentlyCompletedItemCategory = mToDoItems.get(position).getmItemCategory();
+            mRecentlyCompletedItemPosition = position;
+            mToDoItems.get(position).setmItemCategory(R.drawable.ic_finished);
+            Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+
+            //once an item is completed our undo Snackbar should appear
+            showUndoSnackbar(UNDO_TODO_COMPLETED);
+        }
+    }
+
     public void deleteItem(int position) {
 
-        Log.d(TAG, "deleteItem() called for postition "+Integer.toString(position)+"-th item in ToDoItem List");
+        Log.d(TAG, "deleteItem() called for postition " + Integer.toString(position) + "-th item in ToDoItem List");
         mRecentlyDeletedItem = mToDoItems.get(position);
         mRecentlyDeletedItemPosition = position;
         mToDoItems.remove(position);
         Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
-        Log.d(TAG, "Deleted item "+Integer.toString(position)+"-th item in ToDoItem List+SharedPreferences");
+        Log.d(TAG, "Deleted item " + Integer.toString(position) + "-th item in ToDoItem List+SharedPreferences");
         notifyItemRemoved(position);
 
         //once an item is deleted our undo Snackbar should appear
@@ -128,9 +141,9 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
 
     private void showUndoSnackbar(int type) {
         Log.d(TAG, "Undo Snackbar Shown");
-        View view = ((Activity)mContext).findViewById(R.id.main_relative_layout);
+        View view = ((Activity) mContext).findViewById(R.id.main_relative_layout);
         Snackbar snackbar;
-        if(type==UNDO_TODO_COMPLETED){//If ToDoITem Completed
+        if (type == UNDO_TODO_COMPLETED) {//If ToDoITem Completed
             snackbar = Snackbar.make(view, "1 ToDo Completed", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
@@ -138,8 +151,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
                     undoComplete();
                 }
             });
-        }
-        else if(type==UNDO_TODO_DELETED){ //if ToDoItem Deleted
+        } else if (type == UNDO_TODO_DELETED) { //if ToDoItem Deleted
             snackbar = Snackbar.make(view, "1 ToDo Deleted", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
@@ -147,8 +159,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
                     undoDelete();
                 }
             });
-        }
-        else { //if ToDoItem Already Completed
+        } else { //if ToDoItem Already Completed
             snackbar = Snackbar.make(view, "ToDo already completed", Snackbar.LENGTH_LONG);
         }
         snackbar.show();
@@ -156,20 +167,26 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
 
     //function to undo most recent ToDoItem completion
     private void undoComplete() {
-        Log.d(TAG, "Undo Complete Action started for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
+        Log.d(TAG, "Undo Complete Action started for " + Integer.toString(mRecentlyDeletedItemPosition) + "-th item in ToDoItem List.");
         mToDoItems.get(mRecentlyCompletedItemPosition).setmItemCategory(mRecentlyCompletedItemCategory);
         Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
         notifyItemChanged(mRecentlyCompletedItemPosition);
-        Log.d(TAG, "Undo Complete Action completed for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
+        Log.d(TAG, "Undo Complete Action completed for " + Integer.toString(mRecentlyDeletedItemPosition) + "-th item in ToDoItem List.");
 
     }
 
     //function to undo most recent ToDoItem deletion
     private void undoDelete() {
-        Log.d(TAG, "Undo Delete Action started for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
+        Log.d(TAG, "Undo Delete Action started for " + Integer.toString(mRecentlyDeletedItemPosition) + "-th item in ToDoItem List.");
         mToDoItems.add(mRecentlyDeletedItemPosition, mRecentlyDeletedItem);
         Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
         notifyItemInserted(mRecentlyDeletedItemPosition);
-        Log.d(TAG, "Undo Delete Action completed for "+Integer.toString(mRecentlyDeletedItemPosition)+ "-th item in ToDoItem List.");
+        Log.d(TAG, "Undo Delete Action completed for " + Integer.toString(mRecentlyDeletedItemPosition) + "-th item in ToDoItem List.");
     }
+
+    //mutator method to set mOnToDoItemClickListener
+    public void setOnToDoItemClickListener(OnToDoItemClickListener mOnToDoItemClickListener) {
+        this.mOnToDoItemClickListener = mOnToDoItemClickListener;
+    }
+
 }
