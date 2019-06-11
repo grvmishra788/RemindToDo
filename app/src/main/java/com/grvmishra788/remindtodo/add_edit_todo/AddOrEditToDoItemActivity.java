@@ -2,6 +2,8 @@ package com.grvmishra788.remindtodo.add_edit_todo;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.speech.RecognizerIntent;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import com.grvmishra788.remindtodo.R;
 import com.grvmishra788.remindtodo.basic.Utilities;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -33,13 +36,16 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
     public static final String EXTRA_DESCRIPTION = "com.grvmishra788.remindtodo.add_todo.EXTRA_DESCRIPTION";
     public static final String EXTRA_DATE = "com.grvmishra788.remindtodo.add_todo.EXTRA_DATE";
     public static final String EXTRA_POSITION = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_POSITION";
+    public static final int VOICE_INPUT = 1001;
 
-    //EditText variables
+    //EditText variable
     private EditText mEditText;
+
+    //TextView variable
     private TextView mEditDate;
 
-    //Button variables
-    private ImageButton mDateButton;
+    //ImageButton variables
+    private ImageButton mDateButton, mSpeechButton;
 
     //DAte variables
     Date mDate;
@@ -68,6 +74,26 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
                 Log.d(TAG, "onClickListener finished for mDateButton");
             }
         });
+
+        //init Speech Button variable & set its onClick Listener
+        mSpeechButton = (ImageButton) findViewById(R.id.speechButton);
+        mSpeechButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClickListener called for mSpeechButton");
+                int REQUEST_CODE = 1;
+                String DIALOG_TEXT = "Speak now ... ";
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, DIALOG_TEXT);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, REQUEST_CODE);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+                startActivityForResult(intent, VOICE_INPUT);
+                Log.d(TAG, "onClickListener finished for mSpeechButton");
+            }
+        });
+
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_activity);
 
@@ -160,6 +186,17 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             finish();
         }
         Log.d(TAG, "saveToDoItem() completed.");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        Log.d(TAG, "onActivityResult called for requestCode = " + Integer.toString(requestCode));
+        super.onActivityResult(requestCode, resultCode, data);
+        ArrayList<String> speech;
+        if (requestCode == VOICE_INPUT && resultCode == RESULT_OK) {
+            speech = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            mEditText.setText(speech.get(0));
+        }
     }
 
 }
