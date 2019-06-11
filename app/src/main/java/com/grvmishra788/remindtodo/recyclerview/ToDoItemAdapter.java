@@ -20,6 +20,9 @@ import com.grvmishra788.remindtodo.basic.Utilities;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_DAY_AND_DATE;
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_ONLY_TIME;
+
 public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoItemViewHolder> {
 
     //constants
@@ -97,7 +100,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         ToDoItem currentToDoItem = mToDoItems.get(index);
         mToDoItemViewHolder.mImageView.setImageResource(currentToDoItem.getmItemCategory());
         mToDoItemViewHolder.mTextView1.setText(currentToDoItem.getmItemDescription());
-        mToDoItemViewHolder.mTextView2.setText(new SimpleDateFormat("MMM dd, YYYY - hh:mm:ss").format(currentToDoItem.getmItemDate()).toString().trim());
+        mToDoItemViewHolder.mTextView2.setText(new SimpleDateFormat(DATE_FORMAT_DAY_AND_DATE+", "+DATE_FORMAT_ONLY_TIME).format(currentToDoItem.getmItemDate()).toString().trim());
         Log.d(TAG, "Completed binding corresponding View Holder to " + Integer.toString(index) + "-th ToDoItem.");
     }
 

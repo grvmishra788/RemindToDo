@@ -1,6 +1,7 @@
 package com.grvmishra788.remindtodo.add_edit_todo;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
@@ -16,12 +17,14 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.grvmishra788.remindtodo.R;
 import com.grvmishra788.remindtodo.basic.Utilities;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,23 +32,27 @@ import java.util.UUID;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class AddOrEditToDoItemActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class AddOrEditToDoItemActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     //constant strings
     private static final String TAG = AddOrEditToDoItemActivity.class.getName();  //constant Class TAG
     public static final String EXTRA_DESCRIPTION = "com.grvmishra788.remindtodo.add_todo.EXTRA_DESCRIPTION";
     public static final String EXTRA_DATE = "com.grvmishra788.remindtodo.add_todo.EXTRA_DATE";
     public static final String EXTRA_POSITION = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_POSITION";
+    public static final String DATE_FORMAT_ONLY_TIME = "hh:mm a"; //Date format string to show just time
+    public static final String DATE_FORMAT_DAY_AND_DATE = "EEE - MMM dd, yyyy"; //Date format string to show Day and Date
+
+    //constant request code for Intent started by mSpeechButton
     public static final int VOICE_INPUT = 1001;
 
     //EditText variable
     private EditText mEditText;
 
-    //TextView variable
-    private TextView mEditDate;
+    //TextView variables
+    private TextView mEditDate, mEditTime;
 
     //ImageButton variables
-    private ImageButton mDateButton, mSpeechButton;
+    private ImageButton mDateButton, mTimeButton, mSpeechButton;
 
     //DAte variables
     Date mDate;
@@ -59,9 +66,15 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_to_do_item);
 
+        //init mDate with EOD
+        mDate = Utilities.getEndOfDay();
+
         //init EditText variables
         mEditText = (EditText) findViewById(R.id.editText);
+
+        //init TextView variables
         mEditDate = (TextView) findViewById(R.id.editDate);
+        mEditTime = (TextView) findViewById(R.id.editTime);
 
         //init Date Button variable & set its onClick Listener
         mDateButton = (ImageButton) findViewById(R.id.saveDate);
@@ -72,6 +85,18 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
                 DialogFragment mDatePicker = new DatePickerFragment();
                 mDatePicker.show(getSupportFragmentManager(), "Date Picker Dialog");
                 Log.d(TAG, "onClickListener finished for mDateButton");
+            }
+        });
+
+        //init Time Button variable & set its onClick Listener
+        mTimeButton = (ImageButton) findViewById(R.id.saveTime);
+        mTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClickListener called for mTimeButton");
+                DialogFragment mTimePicker = new TimePickerFragment();
+                mTimePicker.show(getSupportFragmentManager(), "Time Picker Dialog");
+                Log.d(TAG, "onClickListener finished for mTimeButton");
             }
         });
 
@@ -94,7 +119,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             }
         });
 
-
+        //init close activity button on left hand top side of activity
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_activity);
 
         //catch the intent which started the activity
@@ -102,14 +127,36 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
 
         //check if this intent was sent to Edit or Add ToDoItem and set title accordingly
         if (mActivityStartingIntent.hasExtra(EXTRA_POSITION)) {
+            Log.d(TAG, "Started setting default fields as activity started to Edit ToDo Item Intent");
+            //incase intent was sent to Edit ToDoItem
+
+            //set Title of activity as Edit ToDoItem
             setTitle("Edit ToDo Item");
-            //incase intent was sent to Edit ToDoItem, set textviews with existing values
+
+            //set mEditText with existing ToDoITem description
             mEditText.setText(mActivityStartingIntent.getStringExtra(EXTRA_DESCRIPTION));
-            Date mExistingDate = new Date(mActivityStartingIntent.getExtras().getLong(EXTRA_DATE));
-            String mDateString = DateFormat.getDateInstance(DateFormat.FULL).format(mExistingDate);
-            mEditDate.setText(mDateString);
-        } else {
+
+            //set mEditDate with existing ToDoITem date
+            mDate = new Date(mActivityStartingIntent.getExtras().getLong(EXTRA_DATE));
+            SimpleDateFormat sdf=new SimpleDateFormat(DATE_FORMAT_DAY_AND_DATE);
+            String currentDateTimeString = sdf.format(mDate);
+            mEditDate.setText(currentDateTimeString);
+
+            //mark mEditTime & mTimeButton as visible
+            mEditTime.setVisibility(View.VISIBLE);
+            mTimeButton.setVisibility(View.VISIBLE);
+
+            //set mEditTime with existing ToDoITem time
+            sdf=new SimpleDateFormat(DATE_FORMAT_ONLY_TIME);
+            currentDateTimeString = sdf.format(mDate);
+            mEditTime.setText(currentDateTimeString);
+            Log.d(TAG, "Completed setting default fields as activity started to Edit ToDo Item Intent");
+        }
+        else {
+            //incase intent was sent to Add ToDoItem
+            //set Title of activity as Add ToDoItem
             setTitle("Add ToDo Item");
+            Log.d(TAG, "Completed setting title as activity started to Add ToDo Item Intent");
         }
     }
 
@@ -134,26 +181,6 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        Log.d(TAG, "OnDateSetListener() called");
-
-        //get year, month and day from calendar instance
-        Calendar mCalendar = Calendar.getInstance();
-        mCalendar.set(Calendar.YEAR, year);
-        mCalendar.set(Calendar.MONTH, month);
-        mCalendar.set(Calendar.DAY_OF_MONTH, day);
-
-        //create date object
-        mDate = mCalendar.getTime();
-
-        //convert date to string & display in text view
-        String mDateString = DateFormat.getDateInstance(DateFormat.FULL).format(mDate);
-        mEditDate.setText(mDateString);
-
-        Log.d(TAG, "OnDateSetListener() call completed");
     }
 
     private void saveToDoItem() {
@@ -196,7 +223,46 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
         if (requestCode == VOICE_INPUT && resultCode == RESULT_OK) {
             speech = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             mEditText.setText(speech.get(0));
+            Log.d(TAG, "Speech recognition success and String put into mEditText");
         }
     }
 
+    //implement DatePickerDialog.OnDateSetListener
+    @Override
+    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+        Log.d(TAG, "OnDateSetListener() called");
+
+        //get year, month and day from calendar instance && hours, minutes from earlier existing mDate
+        Calendar mCalendar = Calendar.getInstance();
+        mCalendar.setTime(mDate);
+        mCalendar.set(Calendar.YEAR, year);
+        mCalendar.set(Calendar.MONTH, month);
+        mCalendar.set(Calendar.DAY_OF_MONTH, day);
+
+        //create date object
+        mDate = mCalendar.getTime();
+
+        //convert date to string & display in text view
+        SimpleDateFormat sdf=new SimpleDateFormat(DATE_FORMAT_DAY_AND_DATE);
+        String currentDateTimeString = sdf.format(mDate);
+        mEditDate.setText(currentDateTimeString);
+
+        //change visibility of time fields
+        mEditTime.setVisibility(View.VISIBLE);
+        mTimeButton.setVisibility(View.VISIBLE);
+
+        Log.d(TAG, "OnDateSetListener() call completed");
+    }
+
+    //implement TimePickerDialog.OnDateSetListener
+    @Override
+    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+        Log.d(TAG, "OnTimeSetListener() call started");
+        mDate.setHours(hour);
+        mDate.setMinutes(minute);
+        SimpleDateFormat sdf=new SimpleDateFormat(DATE_FORMAT_ONLY_TIME);
+        String currentDateTimeString = sdf.format(mDate);
+        mEditTime.setText(currentDateTimeString);
+        Log.d(TAG, "OnTimeSetListener() call completed");
+    }
 }

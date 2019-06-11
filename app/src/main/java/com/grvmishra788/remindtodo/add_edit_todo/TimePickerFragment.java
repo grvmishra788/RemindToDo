@@ -1,6 +1,6 @@
 package com.grvmishra788.remindtodo.add_edit_todo;
 
-import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,18 +10,17 @@ import android.util.Log;
 
 import java.util.Calendar;
 
-public class DatePickerFragment extends DialogFragment {
-    private static final String TAG = DatePickerFragment.class.getName();     //constant Class TAG
+public class TimePickerFragment extends DialogFragment {
+    private static final String TAG = TimePickerFragment.class.getName();     //constant Class TAG
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "OnCreateDialog() called");
         Calendar mCalendar = Calendar.getInstance();
-        int year = mCalendar.get(mCalendar.YEAR);
-        int month = mCalendar.get(mCalendar.MONTH);
-        int day = mCalendar.get(mCalendar.DAY_OF_MONTH);
-        Dialog mDialog = new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener)getActivity(), year, month, day);
+        int hour = mCalendar.get(mCalendar.HOUR);
+        int minute = mCalendar.get(mCalendar.MINUTE);
+        Dialog mDialog = new TimePickerDialog(getActivity(), (TimePickerDialog.OnTimeSetListener)getActivity(), hour, minute, false);
         Log.d(TAG, "OnCreateDialog() call completed");
         return mDialog;
     }

@@ -112,15 +112,13 @@ public class MainActivity extends AppCompatActivity {
             String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
             Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
 
-            if (mDate != null) {
-                mToDoItems.add(new ToDoItem(mToDoItemDescription, mDate));
-            }
-            else {
-                mToDoItems.add(new ToDoItem(mToDoItemDescription));
-            }
-
+            //add new ToDoItem to list & shared preferences
+            mToDoItems.add(new ToDoItem(mToDoItemDescription, mDate));
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
             Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
+
+            //update UI to show changes
+            mRecyclerViewAdapter.notifyDataSetChanged();
         }
         else if (requestCode == EDIT_TO_DO_ITEM && resultCode == RESULT_OK) {
 
@@ -130,12 +128,14 @@ public class MainActivity extends AppCompatActivity {
                 String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
                 Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
 
-                //make changes to the ToDoItem
+                //edit ToDoItem in list & save changes to shared preferences
                 ToDoItem mItemToChange = mToDoItems.get(position);
                 mItemToChange.setmItemDescription(mToDoItemDescription);
                 mItemToChange.setmItemDate(mDate);
                 mToDoItems.set(position, mItemToChange);
                 Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+
+                //update UI to show changes
                 mRecyclerViewAdapter.notifyItemChanged(position);
 
                 Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
