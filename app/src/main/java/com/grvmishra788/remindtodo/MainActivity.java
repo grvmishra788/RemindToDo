@@ -63,6 +63,13 @@ public class MainActivity extends AppCompatActivity {
         if (mToDoItems == null) {
             mToDoItems = new ArrayList<>();
         }
+        else{
+            //else update mToDoItems
+            for(ToDoItem mToDoITem: mToDoItems){
+                mToDoITem.updateToDoItemCategory();
+            }
+            Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+        }
 
         //On Button click, save current ToDoItem if there is some text present in mEditText
         //else popup a toast to notify the user
@@ -132,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 ToDoItem mItemToChange = mToDoItems.get(position);
                 mItemToChange.setmItemDescription(mToDoItemDescription);
                 mItemToChange.setmItemDate(mDate);
+                mItemToChange.updateToDoItemCategory();
                 mToDoItems.set(position, mItemToChange);
                 Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
 

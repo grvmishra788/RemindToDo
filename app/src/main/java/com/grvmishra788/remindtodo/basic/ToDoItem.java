@@ -13,6 +13,9 @@ public class ToDoItem {
     //constant Class TAG
     private static final String TAG = ToDoItem.class.getName();
 
+    //static Calendar instance to get current time
+    private static Calendar mCalendar;
+
     //ToDoItem variables
     private String mItemDescription;
     private Date mItemDate;
@@ -47,6 +50,45 @@ public class ToDoItem {
             //mark item as upcoming if its date is after end of the current day
             this.mItemCategory = R.drawable.ic_upcoming;
             Log.d(TAG, TAG + ": Parametes set by default Constructor modified");
+        }
+    }
+
+    //update ToDoItem category based on current date
+    public void updateToDoItemCategory(){
+        mCalendar = Calendar.getInstance();
+        switch (mItemCategory){
+            case R.drawable.ic_ongoing:
+                if(mCalendar.getTime().after(mItemDate)) {
+                    //ongoing + date_passed = overdue
+                    mItemCategory = R.drawable.ic_overdue;
+                }
+                else if(mItemDate.after(Utilities.getEndOfDay())){
+                    //ongoing + new date after EOD
+                    mItemCategory = R.drawable.ic_upcoming;
+                }
+                break;
+            case R.drawable.ic_upcoming:
+                if(mCalendar.getTime().after(mItemDate)) {
+                    //upcoming + date_passed = overdue
+                    mItemCategory = R.drawable.ic_overdue;
+                }
+                else if(mItemDate.after(Utilities.getStartOfDay()) && mItemDate.before(Utilities.getEndOfDay())) {
+                    //upcoming + date after SOD but before EOD  = ongoing
+                    mItemCategory = R.drawable.ic_ongoing;
+                }
+                break;
+            case R.drawable.ic_overdue:
+                if(mItemDate.after(Utilities.getEndOfDay())) {
+                    //overdue + new date after EOD
+                    mItemCategory = R.drawable.ic_upcoming;
+                }
+                else if(mItemDate.after(Utilities.getStartOfDay()) && !mCalendar.getTime().after(mItemDate)){
+                    //overdue + new date after EOD but before SOD + date not passed
+                    mItemCategory = R.drawable.ic_ongoing;
+                }
+
+            default:
+                break;
         }
     }
 
