@@ -21,6 +21,7 @@ public class ToDoItem {
     private Date mItemDate;
     private int mItemCategory;
     private UUID mItemID;
+    private boolean mItemSetReminder;
 
     //constructor
     public ToDoItem(String mItemDescription){
@@ -33,14 +34,16 @@ public class ToDoItem {
         this.mItemCategory = R.drawable.ic_ongoing;
         //by default item is given a random ID
         this.mItemID = UUID.randomUUID();
+        //by default no reminder added to ToDoItem
+        this.mItemSetReminder = false;
         Log.d(TAG, TAG + ": Constructor ends");
     }
 
     //overloaded constructor 1
-    public ToDoItem(String mItemDescription, Date mItemDate){
+    public ToDoItem(String mItemDescription, Date mItemDate, Boolean mItemSetReminder){
         this(mItemDescription);
         this.mItemDate = mItemDate;
-
+        this.mItemSetReminder = mItemSetReminder;
         //mark item category based on its date
         if(mItemDate.before(Utilities.getStartOfDay())){
             //mark item as overdue if its date is before start of the current day
@@ -109,6 +112,10 @@ public class ToDoItem {
         return mItemID;
     }
 
+    public boolean getmItemSetReminder(){
+        return mItemSetReminder;
+    }
+
     //mutator methods
     public void setmItemCategory(int mItemCategory) {
         this.mItemCategory = mItemCategory;
@@ -125,4 +132,6 @@ public class ToDoItem {
     public void setmItemID(UUID mItemID) {
         this.mItemID = mItemID;
     }
+
+    public void setmItemSetReminder(boolean mItemSetReminder){ this.mItemSetReminder = mItemSetReminder;}
 }

@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
     private static final String TAG = AddOrEditToDoItemActivity.class.getName();  //constant Class TAG
     public static final String EXTRA_DESCRIPTION = "com.grvmishra788.remindtodo.add_todo.EXTRA_DESCRIPTION";
     public static final String EXTRA_DATE = "com.grvmishra788.remindtodo.add_todo.EXTRA_DATE";
+    public static final String EXTRA_REMINDER = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_REMINDER";
     public static final String EXTRA_POSITION = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_POSITION";
     public static final String DATE_FORMAT_ONLY_TIME = "hh:mm a"; //Date format string to show just time
     public static final String DATE_FORMAT_DAY_AND_DATE = "EEE - MMM dd, yyyy"; //Date format string to show Day and Date
@@ -50,6 +52,9 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
 
     //TextView variables
     private TextView mEditDate, mEditTime;
+
+    //Reminder switch
+    private Switch mReminderSwitch;
 
     //ImageButton variables
     private ImageButton mDateButton, mTimeButton, mSpeechButton;
@@ -76,6 +81,28 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
         mEditDate = (TextView) findViewById(R.id.editDate);
         mEditTime = (TextView) findViewById(R.id.editTime);
 
+        //init reminder switch
+        mReminderSwitch = (Switch) findViewById(R.id.reminderSwitch);
+
+        //init Speech Button variable & set its onClick Listener
+        mSpeechButton = (ImageButton) findViewById(R.id.speechButton);
+        mSpeechButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClickListener called for mSpeechButton");
+                int REQUEST_CODE = 1;
+                String DIALOG_TEXT = "Speak now ... ";
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, DIALOG_TEXT);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, REQUEST_CODE);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+                startActivityForResult(intent, VOICE_INPUT);
+                Log.d(TAG, "onClickListener finished for mSpeechButton");
+            }
+        });
+
         //init Date Button variable & set its onClick Listener
         mDateButton = (ImageButton) findViewById(R.id.saveDate);
         mDateButton.setOnClickListener(new View.OnClickListener() {
@@ -100,24 +127,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             }
         });
 
-        //init Speech Button variable & set its onClick Listener
-        mSpeechButton = (ImageButton) findViewById(R.id.speechButton);
-        mSpeechButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "onClickListener called for mSpeechButton");
-                int REQUEST_CODE = 1;
-                String DIALOG_TEXT = "Speak now ... ";
-                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, DIALOG_TEXT);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, REQUEST_CODE);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
-                startActivityForResult(intent, VOICE_INPUT);
-                Log.d(TAG, "onClickListener finished for mSpeechButton");
-            }
-        });
+        //init reminder switch
 
         //init close activity button on left hand top side of activity
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_activity);
@@ -142,15 +152,21 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             String currentDateTimeString = sdf.format(mDate);
             mEditDate.setText(currentDateTimeString);
 
-            //mark mEditTime & mTimeButton as visible
+            //change visibility of time fields
             mEditTime.setVisibility(View.VISIBLE);
             mTimeButton.setVisibility(View.VISIBLE);
+
+            //change visibility of reminder switch
+            mReminderSwitch.setVisibility(View.VISIBLE);
 
             //set mEditTime with existing ToDoITem time
             sdf=new SimpleDateFormat(DATE_FORMAT_ONLY_TIME);
             currentDateTimeString = sdf.format(mDate);
             mEditTime.setText(currentDateTimeString);
             Log.d(TAG, "Completed setting default fields as activity started to Edit ToDo Item Intent");
+
+            //turn on mReminderSwitch if ToDoItem has a reminder
+            mReminderSwitch.setChecked(mActivityStartingIntent.getExtras().getBoolean(EXTRA_REMINDER));
         }
         else {
             //incase intent was sent to Add ToDoItem
@@ -201,6 +217,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             Intent mToDoItemIntent = new Intent();
             mToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItemDescription);
             mToDoItemIntent.putExtra(EXTRA_DATE, mDate.getTime());
+            mToDoItemIntent.putExtra(EXTRA_REMINDER, mReminderSwitch.isChecked());
             setResult(RESULT_OK, mToDoItemIntent);
 
             //put this position into intent only if it has been started by an Edit ToDoItem Intent
@@ -250,6 +267,9 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
         //change visibility of time fields
         mEditTime.setVisibility(View.VISIBLE);
         mTimeButton.setVisibility(View.VISIBLE);
+
+        //change visibility of reminder switch
+        mReminderSwitch.setVisibility(View.VISIBLE);
 
         Log.d(TAG, "OnDateSetListener() call completed");
     }

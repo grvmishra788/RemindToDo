@@ -26,6 +26,7 @@ import java.util.Date;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DATE;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DESCRIPTION;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_POSITION;
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_REMINDER;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent mEditToDoItemIntent = new Intent(MainActivity.this, AddOrEditToDoItemActivity.class);
                 mEditToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItem.getmItemDescription());
                 mEditToDoItemIntent.putExtra(EXTRA_DATE, mToDoItem.getmItemDate().getTime());
+                mEditToDoItemIntent.putExtra(EXTRA_REMINDER, mToDoItem.getmItemSetReminder());
                 mEditToDoItemIntent.putExtra(EXTRA_POSITION, position);
                 startActivityForResult(mEditToDoItemIntent, EDIT_TO_DO_ITEM);
             }
@@ -118,9 +120,10 @@ public class MainActivity extends AppCompatActivity {
             //obtain mToDoItemDescription & mToDoItemDate
             String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
             Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
+            Boolean mItemSetReminder = data.getExtras().getBoolean(EXTRA_REMINDER);
 
             //add new ToDoItem to list & shared preferences
-            mToDoItems.add(new ToDoItem(mToDoItemDescription, mDate));
+            mToDoItems.add(new ToDoItem(mToDoItemDescription, mDate, mItemSetReminder));
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
             Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
 
@@ -134,11 +137,13 @@ public class MainActivity extends AppCompatActivity {
 
                 String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
                 Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
+                Boolean mItemSetReminder = data.getExtras().getBoolean(EXTRA_REMINDER);
 
                 //edit ToDoItem in list & save changes to shared preferences
                 ToDoItem mItemToChange = mToDoItems.get(position);
                 mItemToChange.setmItemDescription(mToDoItemDescription);
                 mItemToChange.setmItemDate(mDate);
+                mItemToChange.setmItemSetReminder(mItemSetReminder);
                 mItemToChange.updateToDoItemCategory();
                 mToDoItems.set(position, mItemToChange);
                 Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
