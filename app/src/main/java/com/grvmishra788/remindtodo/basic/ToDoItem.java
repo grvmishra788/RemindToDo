@@ -44,6 +44,7 @@ public class ToDoItem {
         this(mItemDescription);
         this.mItemDate = mItemDate;
         this.mItemSetReminder = mItemSetReminder;
+
         //mark item category based on its date
         if(mItemDate.before(Utilities.getStartOfDay())){
             //mark item as overdue if its date is before start of the current day

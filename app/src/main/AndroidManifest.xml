@@ -21,6 +21,8 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".reminder.ReminderAlertReceiver" />
+
     </application>
 
 </manifest>

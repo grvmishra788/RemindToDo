@@ -1,5 +1,8 @@
 package com.grvmishra788.remindtodo;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
@@ -19,8 +22,10 @@ import com.grvmishra788.remindtodo.basic.Utilities;
 import com.grvmishra788.remindtodo.recyclerview.OnToDoItemClickListener;
 import com.grvmishra788.remindtodo.recyclerview.RecyclerViewSwipeToDeleteCallback;
 import com.grvmishra788.remindtodo.recyclerview.ToDoItemAdapter;
+import com.grvmishra788.remindtodo.reminder.ReminderAlertReceiver;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DATE;
@@ -123,9 +128,15 @@ public class MainActivity extends AppCompatActivity {
             Boolean mItemSetReminder = data.getExtras().getBoolean(EXTRA_REMINDER);
 
             //add new ToDoItem to list & shared preferences
-            mToDoItems.add(new ToDoItem(mToDoItemDescription, mDate, mItemSetReminder));
+            ToDoItem mToDoItem = new ToDoItem(mToDoItemDescription, mDate, mItemSetReminder);
+            mToDoItems.add(mToDoItem);
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
             Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
+
+            //set Alarm for this new ToDoItem if required
+            if(mItemSetReminder==true){
+                setAlarm(mToDoItem);
+            }
 
             //update UI to show changes
             mRecyclerViewAdapter.notifyDataSetChanged();
@@ -141,12 +152,24 @@ public class MainActivity extends AppCompatActivity {
 
                 //edit ToDoItem in list & save changes to shared preferences
                 ToDoItem mItemToChange = mToDoItems.get(position);
+
+                //if already an alarm was there, cancel last alarm so that modifications can be handled
+                if(mItemToChange.getmItemSetReminder()==true){
+                    cancelAlarm(mItemToChange);
+                }
+
+                //update description and date
                 mItemToChange.setmItemDescription(mToDoItemDescription);
                 mItemToChange.setmItemDate(mDate);
                 mItemToChange.setmItemSetReminder(mItemSetReminder);
                 mItemToChange.updateToDoItemCategory();
                 mToDoItems.set(position, mItemToChange);
                 Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+
+                //set Alarm for this updated ToDoItem if required
+                if(mItemSetReminder==true){
+                    setAlarm(mItemToChange);
+                }
 
                 //update UI to show changes
                 mRecyclerViewAdapter.notifyItemChanged(position);
@@ -159,5 +182,51 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "ToDo Item not saved", Toast.LENGTH_LONG);
         }
+    }
+
+    private void setAlarm(ToDoItem mToDoItem) {
+
+        Log.d(TAG, "setAlarm() called for  - "+mToDoItem.getmItemDescription());
+
+        //init AlarmManager
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        //package intent
+        Intent intent = new Intent(this, ReminderAlertReceiver.class);
+        intent.putExtra(EXTRA_DESCRIPTION, mToDoItem.getmItemDescription());
+
+        //get unique alarmID from ToDoItem UUID
+        int alarmID = mToDoItem.getmItemID().hashCode();
+
+        //turn alarm ON
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, alarmID, intent, 0);
+        Calendar mCalendar = Calendar.getInstance();
+        mCalendar.setTime(mToDoItem.getmItemDate());
+        if(pendingIntent!=null)
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pendingIntent);
+
+        Log.d(TAG, "setAlarm() completed for  - "+mToDoItem.getmItemDescription());
+    }
+
+    private void cancelAlarm(ToDoItem mToDoItem) {
+
+        Log.d(TAG, "cancelAlarm() Called for  - "+mToDoItem.getmItemDescription());
+
+        //init AlarmManager
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        //package intent
+        Intent intent = new Intent(this, ReminderAlertReceiver.class);
+        intent.putExtra(EXTRA_DESCRIPTION, mToDoItem.getmItemDescription());
+
+        //get unique alarmID from ToDoItem UUID
+        int alarmID = mToDoItem.getmItemID().hashCode();
+
+        //turn alarm OFF
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, alarmID, intent, 0);
+        if(pendingIntent!=null)
+            alarmManager.cancel(pendingIntent);
+
+        Log.d(TAG, "cancelAlarm() completed for  - "+mToDoItem.getmItemDescription());
     }
 }
