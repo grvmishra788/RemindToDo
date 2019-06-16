@@ -50,6 +50,7 @@ public class ReminderNotificationHelper extends ContextWrapper {
         return new NotificationCompat.Builder(getApplicationContext(), channelID)
                 .setContentTitle(mToDoItemDescription)
                 .setContentText("Overdue!! - This task needs to be completed soon.")
-                .setSmallIcon(R.mipmap.ic_launcher_foreground);
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setAutoCancel(true);
     }
 }
