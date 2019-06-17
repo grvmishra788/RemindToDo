@@ -53,7 +53,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
 
     //ToDoItemViewHolder nested class : holds RecyclerView elements defined in layout_todoitem.xml
     public class ToDoItemViewHolder extends RecyclerView.ViewHolder {
-        public ImageView mImageView;
+        public ImageView mImageView, mReminderActiveView;
         public TextView mTextView1, mTextView2;
 
         public ToDoItemViewHolder(@NonNull View itemView) {
@@ -61,6 +61,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
             mImageView = itemView.findViewById(R.id.imageView);
             mTextView1 = itemView.findViewById(R.id.textView1);
             mTextView2 = itemView.findViewById(R.id.textView2);
+            mReminderActiveView = itemView.findViewById(R.id.reminderActiveView);
 
             //perform necessary ops if current item is clicked
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -101,6 +102,13 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         mToDoItemViewHolder.mImageView.setImageResource(currentToDoItem.getmItemCategory());
         mToDoItemViewHolder.mTextView1.setText(currentToDoItem.getmItemDescription());
         mToDoItemViewHolder.mTextView2.setText(new SimpleDateFormat(DATE_FORMAT_DAY_AND_DATE+", "+DATE_FORMAT_ONLY_TIME).format(currentToDoItem.getmItemDate()).toString().trim());
+        if(currentToDoItem.getmItemSetReminder()==true){
+            mToDoItemViewHolder.mReminderActiveView.setVisibility(View.VISIBLE);
+            mToDoItemViewHolder.mReminderActiveView.setImageResource(R.drawable.ic_notifications_active);
+        }
+        else {
+            mToDoItemViewHolder.mReminderActiveView.setVisibility(View.INVISIBLE);
+        }
         Log.d(TAG, "Completed binding corresponding View Holder to " + Integer.toString(index) + "-th ToDoItem.");
     }
 
