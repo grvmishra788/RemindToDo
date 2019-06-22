@@ -8,6 +8,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.grvmishra788.remindtodo.MainActivity;
+import com.grvmishra788.remindtodo.MainFragment;
 
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DESCRIPTION;
 

@@ -213,7 +213,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             //by default item's date is set to be the EOD of ongoing day, if user didnt specify it
             if (mDate == null) mDate = Utilities.getEndOfDay();
 
-            //else create a new intent to pass available info about ToDoItem back to MainActivity
+            //else create a new intent to pass available info about ToDoItem back to MainFragment
             Intent mToDoItemIntent = new Intent();
             mToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItemDescription);
             mToDoItemIntent.putExtra(EXTRA_DATE, mDate.getTime());
