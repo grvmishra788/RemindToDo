@@ -42,6 +42,7 @@ public class MainFragment extends Fragment {
 
     //contants
     private static final String TAG = MainFragment.class.getName();     //constant Class TAG
+    public static final String FRAGMENT_CATEGORY = "com.grvmishra788.remindtodo.FRAGMENT_CATEGORY";
     public static final int ADD_TO_DO_ITEM = 1;
     public static final int EDIT_TO_DO_ITEM = 2;
 
@@ -59,9 +60,13 @@ public class MainFragment extends Fragment {
     //FloatingActionButton variable
     private FloatingActionButton mButton;
 
+    //Fragment category
+    private int mCategory;
+
     @Override
     public View onCreateView(LayoutInflater layoutInflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mCategory = getArguments().getInt(FRAGMENT_CATEGORY, -1);
         View view = layoutInflater.inflate(R.layout.fragment_main, container, false);
 
         //init SharedPreferences variable
@@ -97,7 +102,7 @@ public class MainFragment extends Fragment {
         mRecyclerview = (RecyclerView) view.findViewById(R.id.recyclerView);
         mRecyclerview.setHasFixedSize(true);    //hasFixedSize=true increases app performance as Recyclerview is not going to change in size
         mRecyclerViewLayoutManager = new LinearLayoutManager(getContext());
-        mRecyclerViewAdapter = new ToDoItemAdapter(getContext(), mSharedPreferences, mToDoItems);
+        mRecyclerViewAdapter = new ToDoItemAdapter(getContext(), mSharedPreferences, mToDoItems, mCategory);
         mRecyclerview.setLayoutManager(mRecyclerViewLayoutManager);
         mRecyclerview.setAdapter(mRecyclerViewAdapter);
 

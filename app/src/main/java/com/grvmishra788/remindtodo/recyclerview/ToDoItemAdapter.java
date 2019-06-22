@@ -5,12 +5,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.grvmishra788.remindtodo.R;
@@ -50,6 +52,8 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     //Variable to store OnToDoItemClickListener
     private OnToDoItemClickListener mOnToDoItemClickListener;
 
+    //Variable to store type of fragment launching the adapter
+    private int mCategory;
 
     //ToDoItemViewHolder nested class : holds RecyclerView elements defined in layout_todoitem.xml
     public class ToDoItemViewHolder extends RecyclerView.ViewHolder {
@@ -77,11 +81,12 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     }
 
     //Constructor: binds ToDoItem object data to ToDoItemAdapter
-    public ToDoItemAdapter(Context mContext, SharedPreferences mSharedPreferences, ArrayList<ToDoItem> mToDoItems) {
+    public ToDoItemAdapter(Context mContext, SharedPreferences mSharedPreferences, ArrayList<ToDoItem> mToDoItems, int mCategory) {
         Log.d(TAG, TAG + ": Constructor starts");
         this.mContext = mContext;
         this.mSharedPreferences = mSharedPreferences;
         this.mToDoItems = mToDoItems;
+        this.mCategory = mCategory;
         Log.d(TAG, TAG + ": Constructor ends");
     }
 
@@ -99,15 +104,29 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     public void onBindViewHolder(@NonNull ToDoItemViewHolder mToDoItemViewHolder, int index) {
         Log.d(TAG, "Started binding corresponding View Holder to " + Integer.toString(index) + "-th ToDoItem.");
         ToDoItem currentToDoItem = mToDoItems.get(index);
-        mToDoItemViewHolder.mImageView.setImageResource(currentToDoItem.getmItemCategory());
-        mToDoItemViewHolder.mTextView1.setText(currentToDoItem.getmItemDescription());
-        mToDoItemViewHolder.mTextView2.setText(new SimpleDateFormat(DATE_FORMAT_DAY_AND_DATE+", "+DATE_FORMAT_ONLY_TIME).format(currentToDoItem.getmItemDate()).toString().trim());
-        if(currentToDoItem.getmItemSetReminder()==true){
-            mToDoItemViewHolder.mReminderActiveView.setVisibility(View.VISIBLE);
-            mToDoItemViewHolder.mReminderActiveView.setImageResource(R.drawable.ic_notifications_active);
-        }
-        else {
-            mToDoItemViewHolder.mReminderActiveView.setVisibility(View.INVISIBLE);
+        if(mCategory==-1 || mCategory == currentToDoItem.getmItemCategory()){
+            //show itemView if ToDoItem belongs to current Fragment category
+            //make sure itemView has correct params
+            mToDoItemViewHolder.itemView.setVisibility(View.VISIBLE);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.setMargins(10,10,10,10);
+            mToDoItemViewHolder.itemView.setLayoutParams(params);
+
+            //bind resources to view as per ToDoItem
+            mToDoItemViewHolder.mImageView.setImageResource(currentToDoItem.getmItemCategory());
+            mToDoItemViewHolder.mTextView1.setText(currentToDoItem.getmItemDescription());
+            mToDoItemViewHolder.mTextView2.setText(new SimpleDateFormat(DATE_FORMAT_DAY_AND_DATE+", "+DATE_FORMAT_ONLY_TIME).format(currentToDoItem.getmItemDate()).toString().trim());
+            if(currentToDoItem.getmItemSetReminder()==true){
+                mToDoItemViewHolder.mReminderActiveView.setVisibility(View.VISIBLE);
+                mToDoItemViewHolder.mReminderActiveView.setImageResource(R.drawable.ic_notifications_active);
+            }
+            else {
+                mToDoItemViewHolder.mReminderActiveView.setVisibility(View.INVISIBLE);
+            }
+        }else {
+            //hide itemView if ToDoItem doesnt belong to current Fragment category
+            mToDoItemViewHolder.itemView.setVisibility(View.GONE);
+            mToDoItemViewHolder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
         }
         Log.d(TAG, "Completed binding corresponding View Holder to " + Integer.toString(index) + "-th ToDoItem.");
     }
