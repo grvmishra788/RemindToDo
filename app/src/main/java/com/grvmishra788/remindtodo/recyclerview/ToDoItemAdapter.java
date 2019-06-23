@@ -3,6 +3,7 @@ package com.grvmishra788.remindtodo.recyclerview;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
@@ -192,6 +193,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         } else { //if ToDoItem Already Completed
             snackbar = Snackbar.make(view, "ToDo already completed", Snackbar.LENGTH_LONG);
         }
+        snackbar.setActionTextColor(Color.parseColor("#D81B60"));
         snackbar.show();
     }
 
