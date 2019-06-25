@@ -3,22 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="single"
+        android:id="@+id/nav_parent">
         <item
             android:id="@+id/nav_all"
             android:title="All" />
+        <item
+            android:id="@+id/nav_ongoing"
+            android:title="Ongoing"
+            android:checked="true"/>
+        <item
+            android:id="@+id/nav_upcoming"
+            android:title="Upcoming" />
         <item
             android:id="@+id/nav_finished"
             android:title="Finished" />
         <item
             android:id="@+id/nav_overdue"
             android:title="Overdue" />
-        <item
-            android:id="@+id/nav_ongoing"
-            android:title="Ongoing" />
-        <item
-            android:id="@+id/nav_upcoming"
-            android:title="Upcoming" />
     </group>
 
     <item android:title="Others">

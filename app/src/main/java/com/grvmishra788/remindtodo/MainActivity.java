@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null) {
             mFragment = new MainFragment();
             Bundle args = new Bundle();
+            args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_ongoing);
             mFragment.setArguments(args);
             getSupportFragmentManager()
                     .beginTransaction()
