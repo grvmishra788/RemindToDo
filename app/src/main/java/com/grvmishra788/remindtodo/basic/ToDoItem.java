@@ -55,6 +55,13 @@ public class ToDoItem {
             this.mItemCategory = R.drawable.ic_upcoming;
             Log.d(TAG, TAG + ": Parametes set by default Constructor modified");
         }
+        removeReminderIfRequired();
+    }
+
+    //remove ToDoItem reminder if it has been completed OR it has already gone off i.e. its overdue
+    public void removeReminderIfRequired(){
+        if(mItemCategory==R.drawable.ic_overdue || mItemCategory==R.drawable.ic_finished)
+            mItemSetReminder = false;
     }
 
     //update ToDoItem category based on current date
@@ -90,10 +97,11 @@ public class ToDoItem {
                     //overdue + new date after EOD but before SOD + date not passed
                     mItemCategory = R.drawable.ic_ongoing;
                 }
-
+                break;
             default:
                 break;
         }
+        removeReminderIfRequired();
     }
 
     //accessor methods
@@ -134,5 +142,8 @@ public class ToDoItem {
         this.mItemID = mItemID;
     }
 
-    public void setmItemSetReminder(boolean mItemSetReminder){ this.mItemSetReminder = mItemSetReminder;}
+    public void setmItemSetReminder(boolean mItemSetReminder){
+        this.mItemSetReminder = mItemSetReminder;
+        removeReminderIfRequired();
+    }
 }

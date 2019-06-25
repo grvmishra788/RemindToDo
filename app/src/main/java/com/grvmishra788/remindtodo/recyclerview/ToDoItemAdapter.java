@@ -49,6 +49,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
 
     //Variables to store last completed item details incase of undo
     private int mRecentlyCompletedItemPosition, mRecentlyCompletedItemCategory;
+    private Boolean mRecentlyCompletedItemReminder;
 
     //Variable to store OnToDoItemClickListener
     private OnToDoItemClickListener mOnToDoItemClickListener;
@@ -148,7 +149,9 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         } else {
             mRecentlyCompletedItemCategory = mToDoItems.get(position).getmItemCategory();
             mRecentlyCompletedItemPosition = position;
+            mRecentlyCompletedItemReminder = mToDoItems.get(position).getmItemSetReminder();
             mToDoItems.get(position).setmItemCategory(R.drawable.ic_finished);
+            mToDoItems.get(position).removeReminderIfRequired();
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
 
             //once an item is completed our undo Snackbar should appear
@@ -201,6 +204,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     private void undoComplete() {
         Log.d(TAG, "Undo Complete Action started for " + Integer.toString(mRecentlyDeletedItemPosition) + "-th item in ToDoItem List.");
         mToDoItems.get(mRecentlyCompletedItemPosition).setmItemCategory(mRecentlyCompletedItemCategory);
+        mToDoItems.get(mRecentlyCompletedItemPosition).setmItemSetReminder(mRecentlyCompletedItemReminder);
         Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
         notifyItemChanged(mRecentlyCompletedItemPosition);
         Log.d(TAG, "Undo Complete Action completed for " + Integer.toString(mRecentlyDeletedItemPosition) + "-th item in ToDoItem List.");
