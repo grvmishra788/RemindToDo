@@ -68,7 +68,6 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
             mTextView1 = itemView.findViewById(R.id.textView1);
             mTextView2 = itemView.findViewById(R.id.textView2);
             mReminderActiveView = itemView.findViewById(R.id.reminderActiveView);
-
             //perform necessary ops if current item is clicked
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -138,11 +137,26 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         return mToDoItems.size();
     }
 
+    public boolean hasItemForCurrentCategory(){
+        //Variable to store count of items in current category fragment
+        Log.d(TAG, "hasItemForCurrentCategory() called!");
+        boolean hasItem=false;
+        for(int i=0;i<mToDoItems.size();i++){
+            if(mCategory==-1 || mCategory == mToDoItems.get(i).getmItemCategory()){
+                hasItem = true;
+                break;
+            }
+        }
+        Log.d(TAG, "hasItemForCurrentCategory() completed!");
+        return hasItem;
+    }
+
     public Context getContext() {
         return this.mContext;
     }
 
     public void markToDoCompleted(int position) {
+        Log.d(TAG, "markToDoCompleted() called for " + Integer.toString(position) + "-th item in ToDoItem List");
         if (mToDoItems.get(position).getmItemCategory() == R.drawable.ic_finished) {
             //once an item is completed our undo Snackbar should appear
             showUndoSnackbar(UNDO_TODO_ALREADY_COMPLETED);
@@ -156,12 +170,12 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
 
             //once an item is completed our undo Snackbar should appear
             showUndoSnackbar(UNDO_TODO_COMPLETED);
+            Log.d(TAG, "markToDoCompleted() complted for " + Integer.toString(position) + "-th item in ToDoItem List");
         }
     }
 
     public void deleteItem(int position) {
-
-        Log.d(TAG, "deleteItem() called for postition " + Integer.toString(position) + "-th item in ToDoItem List");
+        Log.d(TAG, "deleteItem() called for " + Integer.toString(position) + "-th item in ToDoItem List");
         mRecentlyDeletedItem = mToDoItems.get(position);
         mRecentlyDeletedItemPosition = position;
         mToDoItems.remove(position);

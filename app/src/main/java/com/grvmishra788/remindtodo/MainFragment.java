@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity;
@@ -33,6 +34,8 @@ import java.util.Date;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DATE;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DESCRIPTION;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_POSITION;
@@ -63,6 +66,9 @@ public class MainFragment extends Fragment {
     //Fragment category
     private int mCategory;
 
+    //Variable to store emptyView
+    private TextView emptyView;
+
     @Override
     public View onCreateView(LayoutInflater layoutInflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,10 +84,9 @@ public class MainFragment extends Fragment {
         //init mToDoItems if there are no ToDos saved already
         if (mToDoItems == null) {
             mToDoItems = new ArrayList<>();
-        }
-        else{
+        } else {
             //else update mToDoItems
-            for(ToDoItem mToDoITem: mToDoItems){
+            for (ToDoItem mToDoITem : mToDoItems) {
                 mToDoITem.updateToDoItemCategory();
             }
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
@@ -89,7 +94,7 @@ public class MainFragment extends Fragment {
 
         //On Button click, save current ToDoItem if there is some text present in mEditText
         //else popup a toast to notify the user
-        mButton = (FloatingActionButton) view.findViewById(R. id.addToDoITemBtn);
+        mButton = (FloatingActionButton) view.findViewById(R.id.addToDoITemBtn);
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,11 +103,15 @@ public class MainFragment extends Fragment {
             }
         });
 
+        //init EmptyView variable -> view to show if recyclerView is empty
+        emptyView = (TextView) view.findViewById(R.id.emptyView);
+
         //init recyclerView variables
         mRecyclerview = (RecyclerView) view.findViewById(R.id.recyclerView);
         mRecyclerview.setHasFixedSize(true);    //hasFixedSize=true increases app performance as Recyclerview is not going to change in size
         mRecyclerViewLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerViewAdapter = new ToDoItemAdapter(getContext(), mSharedPreferences, mToDoItems, mCategory);
+        mRecyclerViewAdapter.registerAdapterDataObserver(observer); //register data observer for recyclerView
         mRecyclerview.setLayoutManager(mRecyclerViewLayoutManager);
         mRecyclerview.setAdapter(mRecyclerViewAdapter);
 
@@ -121,8 +130,59 @@ public class MainFragment extends Fragment {
                 startActivityForResult(mEditToDoItemIntent, EDIT_TO_DO_ITEM);
             }
         });
-
+        checkIfEmpty();
         return view;
+    }
+
+    //init data observer for recyclerView
+    private final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+            Log.d(TAG, "onChanged() called for recyclerView observer!");
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            Log.d(TAG, "onItemRangeInserted() called for recyclerView observer!");
+            checkIfEmpty();
+        }
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            Log.d(TAG, "onItemRangeRemoved() called for recyclerView observer!");
+            checkIfEmpty();
+        }
+    };
+
+    //method to take necessary action based on whether recyclerView is empty or not
+    void checkIfEmpty() {
+        Log.d(TAG, "checkIfEmpty() called!");
+        String mFragmentType = getFragmentType();
+        final boolean emptyViewVisible = ((ToDoItemAdapter) mRecyclerViewAdapter).hasItemForCurrentCategory();
+        emptyView.setText("You dont have any" + mFragmentType + " ToDos!");
+        emptyView.setVisibility(!emptyViewVisible ? VISIBLE : GONE);
+        mRecyclerview.setVisibility(!emptyViewVisible ? GONE : VISIBLE);
+        Log.d(TAG, "checkIfEmpty() completed!");
+    }
+
+    //function to get string representing the fragment category
+    private String getFragmentType() {
+        String res = "";
+        switch (mCategory) {
+            case R.drawable.ic_ongoing:
+                res = " Ongoing";
+                break;
+            case R.drawable.ic_overdue:
+                res = " Overdue";
+                break;
+            case R.drawable.ic_finished:
+                res = " Finished";
+                break;
+            case R.drawable.ic_upcoming:
+                res = " Upcoming";
+                break;
+        }
+        return res;
     }
 
     @Override
@@ -144,17 +204,16 @@ public class MainFragment extends Fragment {
             Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
 
             //set Alarm for this new ToDoItem if required
-            if(mItemSetReminder==true){
+            if (mItemSetReminder == true) {
                 setAlarm(mToDoItem);
             }
 
             //update UI to show changes
             mRecyclerViewAdapter.notifyDataSetChanged();
-        }
-        else if (requestCode == EDIT_TO_DO_ITEM && resultCode == RESULT_OK) {
+        } else if (requestCode == EDIT_TO_DO_ITEM && resultCode == RESULT_OK) {
 
             int position = data.getIntExtra(EXTRA_POSITION, -1);
-            if (position!=-1) {
+            if (position != -1) {
 
                 String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
                 Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
@@ -164,7 +223,7 @@ public class MainFragment extends Fragment {
                 ToDoItem mItemToChange = mToDoItems.get(position);
 
                 //if already an alarm was there, cancel last alarm so that modifications can be handled
-                if(mItemToChange.getmItemSetReminder()==true){
+                if (mItemToChange.getmItemSetReminder() == true) {
                     cancelAlarm(mItemToChange);
                 }
 
@@ -177,7 +236,7 @@ public class MainFragment extends Fragment {
                 Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
 
                 //set Alarm for this updated ToDoItem if required
-                if(mItemSetReminder==true){
+                if (mItemSetReminder == true) {
                     setAlarm(mItemToChange);
                 }
 
@@ -185,8 +244,7 @@ public class MainFragment extends Fragment {
                 mRecyclerViewAdapter.notifyItemChanged(position);
 
                 Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
-            }
-            else {
+            } else {
                 Toast.makeText(getContext(), "ToDo Item can't be updated", Toast.LENGTH_LONG);
             }
         } else {
@@ -196,7 +254,7 @@ public class MainFragment extends Fragment {
 
     private void setAlarm(ToDoItem mToDoItem) {
 
-        Log.d(TAG, "setAlarm() called for  - "+mToDoItem.getmItemDescription());
+        Log.d(TAG, "setAlarm() called for  - " + mToDoItem.getmItemDescription());
 
         //init AlarmManager
         AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
@@ -212,15 +270,15 @@ public class MainFragment extends Fragment {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), alarmID, intent, 0);
         Calendar mCalendar = Calendar.getInstance();
         mCalendar.setTime(mToDoItem.getmItemDate());
-        if(pendingIntent!=null)
+        if (pendingIntent != null)
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pendingIntent);
 
-        Log.d(TAG, "setAlarm() completed for  - "+mToDoItem.getmItemDescription());
+        Log.d(TAG, "setAlarm() completed for  - " + mToDoItem.getmItemDescription());
     }
 
     private void cancelAlarm(ToDoItem mToDoItem) {
 
-        Log.d(TAG, "cancelAlarm() Called for  - "+mToDoItem.getmItemDescription());
+        Log.d(TAG, "cancelAlarm() Called for  - " + mToDoItem.getmItemDescription());
 
         //init AlarmManager
         AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
@@ -234,9 +292,9 @@ public class MainFragment extends Fragment {
 
         //turn alarm OFF
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), alarmID, intent, 0);
-        if(pendingIntent!=null)
+        if (pendingIntent != null)
             alarmManager.cancel(pendingIntent);
 
-        Log.d(TAG, "cancelAlarm() completed for  - "+mToDoItem.getmItemDescription());
+        Log.d(TAG, "cancelAlarm() completed for  - " + mToDoItem.getmItemDescription());
     }
 }
