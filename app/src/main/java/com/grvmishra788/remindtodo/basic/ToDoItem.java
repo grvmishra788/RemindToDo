@@ -28,8 +28,8 @@ public class ToDoItem {
         Log.d(TAG, TAG + ": Constructor starts");
         this.mItemDescription = mItemDescription;
 
-        //by default item's date is set to be the EOD of ongoing day
-        this.mItemDate = Utilities.getEndOfDay();
+        //by default item's date is set to be the SOND of ongoing day
+        this.mItemDate = Utilities.getStartOfNextDay();
         //by default item is marked to be ONGOING
         this.mItemCategory = R.drawable.ic_ongoing;
         //by default item is given a random ID
@@ -50,7 +50,7 @@ public class ToDoItem {
             //mark item as overdue if its date is before start of the current day
             this.mItemCategory = R.drawable.ic_overdue;
         }
-        else if(mItemDate.after(Utilities.getEndOfDay()) && !mItemDate.equals(Utilities.getEndOfDay())){
+        else if(mItemDate.after(Utilities.getStartOfNextDay())){
             //mark item as upcoming if its date is after end of the current day
             this.mItemCategory = R.drawable.ic_upcoming;
             Log.d(TAG, TAG + ": Parametes set by default Constructor modified");
@@ -73,8 +73,8 @@ public class ToDoItem {
                     //ongoing + date_passed = overdue
                     mItemCategory = R.drawable.ic_overdue;
                 }
-                else if(mItemDate.after(Utilities.getEndOfDay())){
-                    //ongoing + new date after EOD
+                else if(mItemDate.after(Utilities.getStartOfNextDay())){
+                    //ongoing + new date after SOND
                     mItemCategory = R.drawable.ic_upcoming;
                 }
                 break;
@@ -83,18 +83,18 @@ public class ToDoItem {
                     //upcoming + date_passed = overdue
                     mItemCategory = R.drawable.ic_overdue;
                 }
-                else if(mItemDate.after(Utilities.getStartOfDay()) && mItemDate.before(Utilities.getEndOfDay())) {
-                    //upcoming + date after SOD but before EOD  = ongoing
+                else if(mItemDate.after(Utilities.getStartOfDay()) && mItemDate.before(Utilities.getStartOfNextDay())) {
+                    //upcoming + date after SOD but before SOND  = ongoing
                     mItemCategory = R.drawable.ic_ongoing;
                 }
                 break;
             case R.drawable.ic_overdue:
-                if(mItemDate.after(Utilities.getEndOfDay())) {
-                    //overdue + new date after EOD
+                if(mItemDate.after(Utilities.getStartOfNextDay())) {
+                    //overdue + new date after SOND
                     mItemCategory = R.drawable.ic_upcoming;
                 }
                 else if(mItemDate.after(Utilities.getStartOfDay()) && !mCalendar.getTime().after(mItemDate)){
-                    //overdue + new date after EOD but before SOD + date not passed
+                    //overdue + new date after SOND but before SOD + date not passed
                     mItemCategory = R.drawable.ic_ongoing;
                 }
                 break;
