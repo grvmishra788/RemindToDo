@@ -1,8 +1,7 @@
 package com.grvmishra788.remindtodo;
 
-import android.app.Activity;
+
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -12,9 +11,10 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.grvmishra788.remindtodo.about.AboutFragment;
 
 import static com.grvmishra788.remindtodo.MainFragment.FRAGMENT_CATEGORY;
 
@@ -67,9 +67,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Log.d(TAG, "onNavigationItemSelected() called ");
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        mFragment = new MainFragment();
+
+        //create bundle to store fragment category
         Bundle args = new Bundle();
 
         //set Fragment category as per menuitem selected
@@ -83,15 +85,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_upcoming);
         } else if (id == R.id.nav_setting) {
             Toast.makeText(this, "Settings Activity!", Toast.LENGTH_SHORT).show();
-        } else if (id == R.id.nav_about) {
-            Toast.makeText(this, "About Activity!", Toast.LENGTH_SHORT).show();
         }
 
-        //associate bundle with fragment & launch it
-        mFragment.setArguments(args);
+        //create fragment
+        if (id == R.id.nav_about) {
+            mFragment = new AboutFragment();
+        } else {
+            mFragment = new MainFragment();
+            //associate bundle with fragment
+            mFragment.setArguments(args);
+        }
+
+        //launch the fragment
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container,  mFragment)
+                .replace(R.id.fragment_container, mFragment)
                 .commit();
 
         //close navigation drawer
