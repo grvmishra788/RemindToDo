@@ -1,6 +1,7 @@
 package com.grvmishra788.remindtodo;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -14,7 +15,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.grvmishra788.remindtodo.about.AboutFragment;
+import com.grvmishra788.remindtodo.about.AboutActivity;
 
 import static com.grvmishra788.remindtodo.MainFragment.FRAGMENT_CATEGORY;
 
@@ -89,18 +90,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //create fragment
         if (id == R.id.nav_about) {
-            mFragment = new AboutFragment();
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
         } else {
             mFragment = new MainFragment();
             //associate bundle with fragment
             mFragment.setArguments(args);
-        }
 
-        //launch the fragment
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, mFragment)
-                .commit();
+            //launch the fragment
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, mFragment)
+                    .commit();
+        }
 
         //close navigation drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

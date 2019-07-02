@@ -7,7 +7,7 @@
     android:layout_gravity="top"
     android:background="#E0F7FA"
     android:orientation="vertical"
-    tools:context=".about.AboutFragment">
+    tools:context=".about.AboutActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
