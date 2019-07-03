@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.grvmishra788.remindtodo.about.AboutActivity;
+import com.grvmishra788.remindtodo.settings.SettingsActivity;
 
 import static com.grvmishra788.remindtodo.MainFragment.FRAGMENT_CATEGORY;
 
@@ -84,19 +85,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_ongoing);
         } else if (id == R.id.nav_upcoming) {
             args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_upcoming);
-        } else if (id == R.id.nav_setting) {
-            Toast.makeText(this, "Settings Activity!", Toast.LENGTH_SHORT).show();
         }
-
         //create fragment
         if (id == R.id.nav_about) {
             Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_setting) {
+            Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         } else {
             mFragment = new MainFragment();
             //associate bundle with fragment
             mFragment.setArguments(args);
-
             //launch the fragment
             getSupportFragmentManager()
                     .beginTransaction()
