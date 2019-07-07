@@ -2,6 +2,7 @@ package com.grvmishra788.remindtodo.settings;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.grvmishra788.remindtodo.R;
 
@@ -11,6 +12,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "OnCreate() called ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -20,5 +22,11 @@ public class SettingsActivity extends AppCompatActivity {
         //set title of activity
         setTitle("Settings");
 
+        //replace content with SettingsFragment
+        getFragmentManager().beginTransaction()
+                .replace(android.R.id.content, new SettingsFragment())
+                .commit();
+
+        Log.d(TAG, "OnCreate() completed ");
     }
 }

@@ -2,7 +2,9 @@ package com.grvmishra788.remindtodo;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -16,6 +18,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.grvmishra788.remindtodo.about.AboutActivity;
+import com.grvmishra788.remindtodo.basic.Utilities;
 import com.grvmishra788.remindtodo.settings.SettingsActivity;
 
 import static com.grvmishra788.remindtodo.MainFragment.FRAGMENT_CATEGORY;
@@ -28,6 +31,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Variable To Store Associated Fragment
     private Fragment mFragment;
 
+    //Variable to store User Settings SharedPreference
+    private SharedPreferences userPreferences;
+
+    //Variable to store defaultFragment Type Value i.e. one out of {-1,0,1,2,3}
+    private int defaultFragmentValue;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "OnCreate() called ");
@@ -39,8 +48,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //set action bar
         setSupportActionBar(toolbar);
 
+        //init user settings
+        userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (userPreferences != null) {
+            // 0 -> ongoing should be the selected fragment type if user hasn't selected any
+            String defaultFragment = userPreferences.getString("pref_listTypes", "0");
+            defaultFragmentValue = (defaultFragment == null) ? 0 : Integer.parseInt(defaultFragment);
+        } else {
+            defaultFragmentValue = 0;
+        }
+
         //start initial fragment corresponding to ALL category
-        setUpInitialFragment(savedInstanceState);
+        setUpInitialFragment(savedInstanceState, defaultFragmentValue);
 
         //setup drawer toggle
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -50,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.getMenu().getItem(defaultFragmentValue + 1).setChecked(true);
         navigationView.setNavigationItemSelectedListener(this);
         Log.d(TAG, "OnCreate() completed ");
     }
@@ -86,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_upcoming) {
             args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_upcoming);
         }
+
         //create fragment
         if (id == R.id.nav_about) {
             Intent intent = new Intent(this, AboutActivity.class);
@@ -111,12 +132,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void setUpInitialFragment(@Nullable Bundle savedInstanceState) {
+    private void setUpInitialFragment(@Nullable Bundle savedInstanceState, int defaultFragmentValue) {
         Log.d(TAG, "setUpInitialFragment() called ");
         if (savedInstanceState == null) {
             mFragment = new MainFragment();
             Bundle args = new Bundle();
-            args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_ongoing);
+
+            //Conversion from values present in "pref_toDoList_values" array to corresponding Fragment type
+            if (defaultFragmentValue == 0) {
+                args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_ongoing);
+            } else if (defaultFragmentValue == 1) {
+                args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_upcoming);
+            } else if (defaultFragmentValue == 2) {
+                args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_finished);
+            } else if (defaultFragmentValue == 3) {
+                args.putInt(FRAGMENT_CATEGORY, R.drawable.ic_overdue);
+            }
+
             mFragment.setArguments(args);
             getSupportFragmentManager()
                     .beginTransaction()

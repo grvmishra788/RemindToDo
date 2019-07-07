@@ -17,23 +17,39 @@ public class Utilities {
     //constant Class TAG
     private static final String TAG = Utilities.class.getName();
 
-    //function to save ToDoList To SharedPrefences
-    public static void saveToDoListToSharedPreferences(SharedPreferences mSharedPreferences, ArrayList<ToDoItem> mToDoItems){
-        Log.d(TAG, "Started saving ToDoList to Shared Preferences");
+    //function to save string To SharedPrefences
+    public static void saveStringToSharedPreferences(SharedPreferences mSharedPreferences, String strType, String str) {
+        Log.d(TAG, "Started saving string to Shared Preferences for type - " + strType);
         SharedPreferences.Editor mSharedPreferencesEditor = mSharedPreferences.edit();
+        mSharedPreferencesEditor.putString(strType, str);
+        mSharedPreferencesEditor.apply();
+        Log.d(TAG, "Completed saving string to Shared Preferences for type - " + strType);
+    }
+
+    //function to load string From SharedPrefences
+    public static String loadStringFromSharedPreferences(SharedPreferences mSharedPreferences, String strType) {
+        Log.d(TAG, "Started loading string from Shared Preferences for type - " + strType);
+        String str = mSharedPreferences.getString(strType, null);
+        Log.d(TAG, "Completed loading string to Shared Preferences for type - " + strType);
+        return str;
+    }
+
+    //function to save ToDoList To SharedPrefences
+    public static void saveToDoListToSharedPreferences(SharedPreferences mSharedPreferences, ArrayList<ToDoItem> mToDoItems) {
+        Log.d(TAG, "Started saving ToDoList to Shared Preferences");
         Gson mGson = new Gson();
         String json = mGson.toJson(mToDoItems);
-        mSharedPreferencesEditor.putString("ToDoList", json);
-        mSharedPreferencesEditor.apply();
+        saveStringToSharedPreferences(mSharedPreferences, "ToDoList", json);
         Log.d(TAG, "Ended saving ToDoList to Shared Preferences");
     }
 
     //function to load ToDoList From SharedPrefences
-    public static ArrayList<ToDoItem> loadToDoListFromSharedPreferences(SharedPreferences mSharedPreferences){
+    public static ArrayList<ToDoItem> loadToDoListFromSharedPreferences(SharedPreferences mSharedPreferences) {
         Log.d(TAG, "Started loading ToDoList from Shared Preferences");
         Gson mGson = new Gson();
-        String json = mSharedPreferences.getString("ToDoList", null);
-        Type mType = new TypeToken<ArrayList<ToDoItem>>(){}.getType();
+        String json = loadStringFromSharedPreferences(mSharedPreferences, "ToDoList");
+        Type mType = new TypeToken<ArrayList<ToDoItem>>() {
+        }.getType();
         ArrayList<ToDoItem> mToDoItem = mGson.fromJson(json, mType);
         Log.d(TAG, "Ended loading ToDoList from Shared Preferences");
         return mToDoItem;
