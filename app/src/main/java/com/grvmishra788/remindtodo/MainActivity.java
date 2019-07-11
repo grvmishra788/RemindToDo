@@ -21,6 +21,7 @@ import com.grvmishra788.remindtodo.about.AboutActivity;
 import com.grvmishra788.remindtodo.basic.Utilities;
 import com.grvmishra788.remindtodo.settings.SettingsActivity;
 
+import static com.grvmishra788.remindtodo.MainFragment.COMPARATOR_TYPE;
 import static com.grvmishra788.remindtodo.MainFragment.FRAGMENT_CATEGORY;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -37,6 +38,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Variable to store defaultFragment Type Value i.e. one out of {-1,0,1,2,3}
     private int defaultFragmentValue;
 
+    //Variable to store default Comparator Type
+    // 0 -> Alphabetical, 1-> Due Date
+    private int defaultComparatorType;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "OnCreate() called ");
@@ -48,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //set action bar
         setSupportActionBar(toolbar);
 
-        //init user settings
+        //--------------------init user settings----------------------
         userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (userPreferences != null) {
             // 0 -> ongoing should be the selected fragment type if user hasn't selected any
@@ -57,6 +62,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             defaultFragmentValue = 0;
         }
+
+        //sort ToDoItems alphabetically by default
+        defaultComparatorType = 0;
+        //-------------------------------------------------------------
 
         //start initial fragment corresponding to ALL category
         setUpInitialFragment(savedInstanceState, defaultFragmentValue);
@@ -95,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //create bundle to store fragment category
         Bundle args = new Bundle();
+        args.putInt(COMPARATOR_TYPE, defaultComparatorType);
 
         //set Fragment category as per menuitem selected
         if (id == R.id.nav_finished) {

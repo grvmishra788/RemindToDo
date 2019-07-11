@@ -30,6 +30,8 @@ import com.grvmishra788.remindtodo.reminder.ReminderAlertReceiver;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import static android.app.Activity.RESULT_OK;
@@ -46,6 +48,7 @@ public class MainFragment extends Fragment {
     //contants
     private static final String TAG = MainFragment.class.getName();     //constant Class TAG
     public static final String FRAGMENT_CATEGORY = "com.grvmishra788.remindtodo.FRAGMENT_CATEGORY";
+    public static final String COMPARATOR_TYPE = "com.grvmishra788.remindtodo.COMPARATOR_TYPE";
     public static final int ADD_TO_DO_ITEM = 1;
     public static final int EDIT_TO_DO_ITEM = 2;
 
@@ -69,10 +72,19 @@ public class MainFragment extends Fragment {
     //Variable to store emptyView
     private TextView emptyView;
 
+    //Variable to store Comparator object
+    Comparator<ToDoItem> mToDoItemComparator;
+
     @Override
     public View onCreateView(LayoutInflater layoutInflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //get fragment category from bundle
         mCategory = getArguments().getInt(FRAGMENT_CATEGORY, -1);
+
+        //get comparator type from bundle
+        getComparator(getArguments().getInt(COMPARATOR_TYPE, 0));
+
+        //inflate view
         View view = layoutInflater.inflate(R.layout.fragment_main, container, false);
 
         //init SharedPreferences variable
@@ -89,6 +101,7 @@ public class MainFragment extends Fragment {
             for (ToDoItem mToDoITem : mToDoItems) {
                 mToDoITem.updateToDoItemCategory();
             }
+            Collections.sort(mToDoItems, mToDoItemComparator);
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
         }
 
@@ -134,6 +147,43 @@ public class MainFragment extends Fragment {
         return view;
     }
 
+    private void getComparator(int comparatorType) {
+        // 0 -> Alphabetical, 1-> Due Date
+        switch (comparatorType) {
+            case 0:
+                mToDoItemComparator = new Comparator<ToDoItem>() {
+                    @Override
+                    public int compare(ToDoItem t1, ToDoItem t2) {
+                        return t1.getmItemDescription().toLowerCase().compareTo(t2.getmItemDescription().toLowerCase());
+                    }
+                };
+                break;
+            case 1:
+                mToDoItemComparator = new Comparator<ToDoItem>() {
+                    @Override
+                    public int compare(ToDoItem t1, ToDoItem t2) {
+                        int ans = 0;
+                        if (t1.getmItemDate().before(t2.getmItemDate())) {
+                            ans = -1;
+                        } else if (t1.getmItemDate().after(t2.getmItemDate())) {
+                            ans = 1;
+                        }
+                        return ans;
+                    }
+                };
+                break;
+            default:
+                //by default choose alphabetical sorting
+                mToDoItemComparator = new Comparator<ToDoItem>() {
+                    @Override
+                    public int compare(ToDoItem t1, ToDoItem t2) {
+                        return t1.getmItemDescription().toLowerCase().compareTo(t2.getmItemDescription().toLowerCase());
+                    }
+                };
+                break;
+        }
+    }
+
     //init data observer for recyclerView
     private final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
         @Override
@@ -147,6 +197,7 @@ public class MainFragment extends Fragment {
             Log.d(TAG, "onItemRangeInserted() called for recyclerView observer!");
             checkIfEmpty();
         }
+
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
             Log.d(TAG, "onItemRangeRemoved() called for recyclerView observer!");
@@ -200,6 +251,7 @@ public class MainFragment extends Fragment {
             //add new ToDoItem to list & shared preferences
             ToDoItem mToDoItem = new ToDoItem(mToDoItemDescription, mDate, mItemSetReminder);
             mToDoItems.add(mToDoItem);
+            Collections.sort(mToDoItems, mToDoItemComparator);
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
             Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
 
@@ -233,6 +285,7 @@ public class MainFragment extends Fragment {
                 mItemToChange.setmItemSetReminder(mItemSetReminder);
                 mItemToChange.updateToDoItemCategory();
                 mToDoItems.set(position, mItemToChange);
+                Collections.sort(mToDoItems, mToDoItemComparator);
                 Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
 
                 //set Alarm for this updated ToDoItem if required
@@ -241,7 +294,7 @@ public class MainFragment extends Fragment {
                 }
 
                 //update UI to show changes
-                mRecyclerViewAdapter.notifyItemChanged(position);
+                mRecyclerViewAdapter.notifyDataSetChanged();
 
                 Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
             } else {
