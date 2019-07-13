@@ -17,4 +17,14 @@
         <item>3</item>
     </string-array>
 
+    <string-array name="pref_sort_types">
+        <item>Alphabetical</item>
+        <item>Due Date</item>
+    </string-array>
+
+    <string-array name="pref_sort_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
 </resources>

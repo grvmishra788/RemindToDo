@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <ListPreference
-        android:key="pref_listTypes"
-        android:title="Default ToDo List type"
-        android:summary="Select ToDo List type to show at startup"
+        android:key="pref_listType"
+        android:title="Default ToDo list type"
+        android:summary="Select ToDo list type to show at startup"
         android:entries="@array/pref_toDoList_types"
         android:entryValues="@array/pref_toDoList_values"
         android:defaultValue="0"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
+
+    <ListPreference
+        android:key="pref_sortType"
+        android:title="Default Sort type"
+        android:summary="Select default way to sort ToDo list"
+        android:entries="@array/pref_sort_types"
+        android:entryValues="@array/pref_sort_values"
+        android:defaultValue="0"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />
+
 </PreferenceScreen>

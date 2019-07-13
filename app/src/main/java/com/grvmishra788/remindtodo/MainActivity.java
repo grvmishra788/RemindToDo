@@ -55,16 +55,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //--------------------init user settings----------------------
         userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        // 0 -> ongoing should be the selected fragment type if user hasn't selected any
+        // 0 -> alphabetical sorting should be the selected defaultComparatorType if user hasn't selected any
         if (userPreferences != null) {
-            // 0 -> ongoing should be the selected fragment type if user hasn't selected any
-            String defaultFragment = userPreferences.getString("pref_listTypes", "0");
+            // get defaultFragmentValue & defaultComparatorType from default Shared Preference
+            String defaultFragment = userPreferences.getString("pref_listType", "0");
             defaultFragmentValue = (defaultFragment == null) ? 0 : Integer.parseInt(defaultFragment);
+            String defaultComparator = userPreferences.getString("pref_sortType", "0");
+            defaultComparatorType = (defaultComparator == null) ? 0 : Integer.parseInt(defaultComparator);
         } else {
             defaultFragmentValue = 0;
+            defaultComparatorType = 0;
         }
 
         //sort ToDoItems alphabetically by default
-        defaultComparatorType = 0;
         //-------------------------------------------------------------
 
         //start initial fragment corresponding to ALL category
