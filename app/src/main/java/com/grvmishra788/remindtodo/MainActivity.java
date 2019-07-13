@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //set action bar
         setSupportActionBar(toolbar);
 
-        //--------------------init user settings----------------------
+        //--------------------init user settings----------------------//
         userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         // 0 -> ongoing should be the selected fragment type if user hasn't selected any
         // 0 -> alphabetical sorting should be the selected defaultComparatorType if user hasn't selected any
@@ -67,9 +67,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultFragmentValue = 0;
             defaultComparatorType = 0;
         }
-
-        //sort ToDoItems alphabetically by default
-        //-------------------------------------------------------------
+        //-------------------------------------------------------------//
 
         //start initial fragment corresponding to ALL category
         setUpInitialFragment(savedInstanceState, defaultFragmentValue);
@@ -106,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        //create bundle to store fragment category
+        //create bundle to store fragment category & comparator type
         Bundle args = new Bundle();
         args.putInt(COMPARATOR_TYPE, defaultComparatorType);
 
@@ -150,7 +148,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(TAG, "setUpInitialFragment() called ");
         if (savedInstanceState == null) {
             mFragment = new MainFragment();
+
+            //create bundle to store fragment category & comparator type
             Bundle args = new Bundle();
+            args.putInt(COMPARATOR_TYPE, defaultComparatorType);
 
             //Conversion from values present in "pref_toDoList_values" array to corresponding Fragment type
             if (defaultFragmentValue == 0) {

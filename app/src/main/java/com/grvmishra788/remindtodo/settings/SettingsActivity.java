@@ -1,9 +1,11 @@
 package com.grvmishra788.remindtodo.settings;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.grvmishra788.remindtodo.MainActivity;
 import com.grvmishra788.remindtodo.R;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -28,5 +30,13 @@ public class SettingsActivity extends AppCompatActivity {
                 .commit();
 
         Log.d(TAG, "OnCreate() completed ");
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed() called ");
+        //Restart Main Activity onBackPressed() to reflect changes
+        startActivity(new Intent(this, MainActivity.class));
+        Log.d(TAG, "onBackPressed() completed ");
     }
 }
