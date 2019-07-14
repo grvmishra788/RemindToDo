@@ -126,6 +126,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_setting) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+            //finish this MainActivity after transferring control to SettingsActivity
+            finish();
         } else {
             mFragment = new MainFragment();
             //associate bundle with fragment
