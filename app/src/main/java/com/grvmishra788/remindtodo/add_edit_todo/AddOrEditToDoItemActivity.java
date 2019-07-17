@@ -41,6 +41,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
     public static final String EXTRA_DATE = "com.grvmishra788.remindtodo.add_todo.EXTRA_DATE";
     public static final String EXTRA_REMINDER = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_REMINDER";
     public static final String EXTRA_POSITION = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_POSITION";
+    public static final String EXTRA_TASK_FINISHED = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_TASK_FINISHED";
     public static final String DATE_FORMAT_ONLY_TIME = "hh:mm a"; //Date format string to show just time
     public static final String DATE_FORMAT_DAY_AND_DATE = "EEE - MMM dd, yyyy"; //Date format string to show Day and Date
 
@@ -54,7 +55,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
     private TextView mEditDate, mEditTime;
 
     //Reminder switch
-    private Switch mReminderSwitch;
+    private Switch mReminderSwitch, mTaskFinishedSwitch;
 
     //ImageButton variables
     private ImageButton mDateButton, mTimeButton, mSpeechButton;
@@ -81,8 +82,9 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
         mEditDate = (TextView) findViewById(R.id.editDate);
         mEditTime = (TextView) findViewById(R.id.editTime);
 
-        //init reminder switch
+        //init switch variables
         mReminderSwitch = (Switch) findViewById(R.id.reminderSwitch);
+        mTaskFinishedSwitch = (Switch) findViewById(R.id.taskFinishedSwitch);
 
         //init Speech Button variable & set its onClick Listener
         mSpeechButton = (ImageButton) findViewById(R.id.speechButton);
@@ -156,8 +158,9 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             mEditTime.setVisibility(View.VISIBLE);
             mTimeButton.setVisibility(View.VISIBLE);
 
-            //change visibility of reminder switch
+            //change visibility of switches
             mReminderSwitch.setVisibility(View.VISIBLE);
+            mTaskFinishedSwitch.setVisibility(View.VISIBLE);
 
             //set mEditTime with existing ToDoITem time
             sdf=new SimpleDateFormat(DATE_FORMAT_ONLY_TIME);
@@ -167,6 +170,9 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
 
             //turn on mReminderSwitch if ToDoItem has a reminder
             mReminderSwitch.setChecked(mActivityStartingIntent.getExtras().getBoolean(EXTRA_REMINDER));
+
+            //turn on mTaskFinishedSwitch if ToDoItem has been finished
+            mTaskFinishedSwitch.setChecked(mActivityStartingIntent.getExtras().getBoolean(EXTRA_TASK_FINISHED));
         }
         else {
             //incase intent was sent to Add ToDoItem
@@ -218,6 +224,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             mToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItemDescription);
             mToDoItemIntent.putExtra(EXTRA_DATE, mDate.getTime());
             mToDoItemIntent.putExtra(EXTRA_REMINDER, mReminderSwitch.isChecked());
+            mToDoItemIntent.putExtra(EXTRA_TASK_FINISHED, mTaskFinishedSwitch.isChecked());
             setResult(RESULT_OK, mToDoItemIntent);
 
             //put this position into intent only if it has been started by an Edit ToDoItem Intent

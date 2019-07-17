@@ -42,6 +42,7 @@ import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivit
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DESCRIPTION;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_POSITION;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_REMINDER;
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_TASK_FINISHED;
 
 public class MainFragment extends Fragment {
 
@@ -140,6 +141,7 @@ public class MainFragment extends Fragment {
                 mEditToDoItemIntent.putExtra(EXTRA_DATE, mToDoItem.getmItemDate().getTime());
                 mEditToDoItemIntent.putExtra(EXTRA_REMINDER, mToDoItem.getmItemSetReminder());
                 mEditToDoItemIntent.putExtra(EXTRA_POSITION, position);
+                mEditToDoItemIntent.putExtra(EXTRA_TASK_FINISHED, (mToDoItem.getmItemCategory()==R.drawable.ic_finished)?true:false);
                 startActivityForResult(mEditToDoItemIntent, EDIT_TO_DO_ITEM);
             }
         });
@@ -270,6 +272,7 @@ public class MainFragment extends Fragment {
                 String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
                 Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
                 Boolean mItemSetReminder = data.getExtras().getBoolean(EXTRA_REMINDER);
+                Boolean mTaskFinished = data.getExtras().getBoolean(EXTRA_TASK_FINISHED);
 
                 //edit ToDoItem in list & save changes to shared preferences
                 ToDoItem mItemToChange = mToDoItems.get(position);
@@ -282,8 +285,17 @@ public class MainFragment extends Fragment {
                 //update description and date
                 mItemToChange.setmItemDescription(mToDoItemDescription);
                 mItemToChange.setmItemDate(mDate);
-                mItemToChange.setmItemSetReminder(mItemSetReminder);
-                mItemToChange.updateToDoItemCategory();
+                if(!mTaskFinished){ //if Task Finished switch is turned OFF
+                    //hack to deal with updating finished TODOs
+                    mItemToChange.setmItemCategory(R.drawable.ic_overdue);
+                    //update category
+                    mItemToChange.updateToDoItemCategory();
+                    //set reminder
+                    mItemToChange.setmItemSetReminder(mItemSetReminder);
+                } else {
+                    //set category to finished
+                    mItemToChange.setmItemCategory(R.drawable.ic_finished);
+                }
                 mToDoItems.set(position, mItemToChange);
                 Collections.sort(mToDoItems, mToDoItemComparator);
                 Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
