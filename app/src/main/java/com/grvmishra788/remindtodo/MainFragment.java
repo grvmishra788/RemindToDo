@@ -8,10 +8,10 @@ import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,6 +33,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
@@ -44,7 +45,7 @@ import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivit
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_REMINDER;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_TASK_FINISHED;
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements SearchView.OnQueryTextListener {
 
     //contants
     private static final String TAG = MainFragment.class.getName();     //constant Class TAG
@@ -361,5 +362,30 @@ public class MainFragment extends Fragment {
             alarmManager.cancel(pendingIntent);
 
         Log.d(TAG, "cancelAlarm() completed for  - " + mToDoItem.getmItemDescription());
+    }
+
+
+    //function-1 to implement SearchView.OnQueryTextListener
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        return false;
+    }
+
+    //function-2 to implement SearchView.OnQueryTextListener
+    @Override
+    public boolean onQueryTextChange(String s) {
+        //get user input in lowercase
+        String userInput = s.toLowerCase();
+        //create a new ToDoItem list
+        List<ToDoItem> matchedList = new ArrayList<>();
+        //add matching items to this new list
+        for(ToDoItem mToDoItem: mToDoItems){
+            if(mToDoItem.getmItemDescription().toLowerCase().contains(userInput)){
+                matchedList.add(mToDoItem);
+            }
+        }
+        //update list in recyclerView adapter
+        ((ToDoItemAdapter)mRecyclerViewAdapter).updateList(matchedList);
+        return true;
     }
 }

@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +21,7 @@ import com.grvmishra788.remindtodo.basic.Utilities;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_DAY_AND_DATE;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_ONLY_TIME;
@@ -237,6 +237,15 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     //mutator method to set mOnToDoItemClickListener
     public void setOnToDoItemClickListener(OnToDoItemClickListener mOnToDoItemClickListener) {
         this.mOnToDoItemClickListener = mOnToDoItemClickListener;
+    }
+
+    //method to update mToDoItems List while toDoItem search is going on
+    public void updateList(List<ToDoItem> matchingList){
+        Log.d(TAG, "updateList() called");
+        mToDoItems = new ArrayList<>();
+        mToDoItems.addAll(matchingList);
+        notifyDataSetChanged();
+        Log.d(TAG, "updateList() completed");
     }
 
 }

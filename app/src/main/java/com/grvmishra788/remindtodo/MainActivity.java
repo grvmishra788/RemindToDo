@@ -14,11 +14,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.support.v7.widget.SearchView;
 
 import com.grvmishra788.remindtodo.about.AboutActivity;
-import com.grvmishra788.remindtodo.basic.Utilities;
 import com.grvmishra788.remindtodo.settings.SettingsActivity;
 
 import static com.grvmishra788.remindtodo.MainFragment.COMPARATOR_TYPE;
@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Variable to store default Comparator Type
     // 0 -> Alphabetical, 1-> Due Date
     private int defaultComparatorType;
+
+    //SearchView Variable
+    SearchView mSearchView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,6 +100,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(TAG, "OnBackPressed() completed ");
     }
 
+
+    //method to create search menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu() called");
+        getMenuInflater().inflate(R.menu.search_menu, menu);
+        MenuItem menuItem = menu.findItem(R.id.action_search);
+        mSearchView =  (SearchView) menuItem.getActionView();
+        refreshSearchViewOnTextChangeListener();
+        Log.d(TAG, "onCreateOptionsMenu() completed");
+        return true;
+    }
+
+    //method to keep updating mSearchView.setOnQueryTextListener when fragment is changed
+    private void refreshSearchViewOnTextChangeListener(){
+        mSearchView.setOnQueryTextListener((SearchView.OnQueryTextListener) mFragment);
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Log.d(TAG, "onNavigationItemSelected() called ");
@@ -142,6 +163,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //close navigation drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+        //update mSearchView.setOnQueryTextListener
+        refreshSearchViewOnTextChangeListener();
+
         Log.d(TAG, "onNavigationItemSelected() completed ");
         return true;
     }
