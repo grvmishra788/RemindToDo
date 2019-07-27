@@ -3,22 +3,28 @@ package com.grvmishra788.remindtodo;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v7.widget.SearchView;
+import android.view.View;
+import android.widget.TextView;
 
 import com.grvmishra788.remindtodo.about.AboutActivity;
+import com.grvmishra788.remindtodo.basic.Utilities;
 import com.grvmishra788.remindtodo.settings.SettingsActivity;
 
 import static com.grvmishra788.remindtodo.MainFragment.COMPARATOR_TYPE;
@@ -44,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //SearchView Variable
     SearchView mSearchView;
+
+    //Textview variables to show itemCounts corresponding to each fragment type
+    TextView allCount, ongoingCount, upcomingCount, finishedCount, overdueCount;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,7 +87,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //setup drawer toggle
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                updateCountDrawer();
+            }
+        };
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -86,6 +101,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.getMenu().getItem(defaultFragmentValue + 1).setChecked(true);
         navigationView.setNavigationItemSelectedListener(this);
         Log.d(TAG, "OnCreate() completed ");
+
+        //setup textviews handing counts
+        allCount = (TextView) MenuItemCompat.getActionView(navigationView.getMenu().
+                findItem(R.id.nav_all));
+        ongoingCount = (TextView) MenuItemCompat.getActionView(navigationView.getMenu().
+                findItem(R.id.nav_ongoing));
+        upcomingCount = (TextView) MenuItemCompat.getActionView(navigationView.getMenu().
+                findItem(R.id.nav_upcoming));
+        finishedCount = (TextView) MenuItemCompat.getActionView(navigationView.getMenu().
+                findItem(R.id.nav_finished));
+        overdueCount = (TextView) MenuItemCompat.getActionView(navigationView.getMenu().
+                findItem(R.id.nav_overdue));
     }
 
     @Override
@@ -198,6 +225,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
         }
         Log.d(TAG, "setUpInitialFragment() completed ");
+    }
+
+
+    //function to update count-TextViews
+    private void updateCountDrawer(){
+        //This method will initialize the count values corresponding to fragment types in navigation drawer
+        Log.d(TAG, "initializeCountDrawer() called ");
+        int[] itemCounts = ((MainFragment) mFragment).getItemsInDifferentCategory();
+        Utilities.initTextView(allCount, Gravity.CENTER_VERTICAL, Typeface.BOLD, getResources().getColor(R.color.colorAccent), String.valueOf(itemCounts[0]));
+        Utilities.initTextView(ongoingCount, Gravity.CENTER_VERTICAL, Typeface.BOLD, getResources().getColor(R.color.colorAccent), String.valueOf(itemCounts[1]));
+        Utilities.initTextView(upcomingCount, Gravity.CENTER_VERTICAL, Typeface.BOLD, getResources().getColor(R.color.colorAccent), String.valueOf(itemCounts[2]));
+        Utilities.initTextView(finishedCount, Gravity.CENTER_VERTICAL, Typeface.BOLD, getResources().getColor(R.color.colorAccent), String.valueOf(itemCounts[3]));
+        Utilities.initTextView(overdueCount, Gravity.CENTER_VERTICAL, Typeface.BOLD, getResources().getColor(R.color.colorAccent), String.valueOf(itemCounts[4]));
+        Log.d(TAG, "initializeCountDrawer() completed ");
     }
 
 }

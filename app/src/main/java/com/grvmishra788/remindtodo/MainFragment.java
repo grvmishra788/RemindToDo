@@ -388,4 +388,22 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
         ((ToDoItemAdapter)mRecyclerViewAdapter).updateList(matchedList);
         return true;
     }
+
+    //function to get count of ToDoItems in Different Categories
+    public int[] getItemsInDifferentCategory(){
+        int[] itemCounts = {0,0,0,0,0};
+        itemCounts[0] = mToDoItems.size();
+        for(int i=0;i<mToDoItems.size();i++){
+            if(mToDoItems.get(i).getmItemCategory() == R.drawable.ic_ongoing){
+                itemCounts[1]++;
+            } else if(mToDoItems.get(i).getmItemCategory() == R.drawable.ic_upcoming){
+                itemCounts[2]++;
+            } else if(mToDoItems.get(i).getmItemCategory() == R.drawable.ic_finished){
+                itemCounts[3]++;
+            } else if(mToDoItems.get(i).getmItemCategory() == R.drawable.ic_overdue){
+                itemCounts[4]++;
+            }
+        }
+        return itemCounts;
+    }
 }

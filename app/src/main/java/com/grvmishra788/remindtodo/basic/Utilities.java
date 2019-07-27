@@ -1,10 +1,15 @@
 package com.grvmishra788.remindtodo.basic;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.grvmishra788.remindtodo.R;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -75,6 +80,7 @@ public class Utilities {
         return calendar.getTime();
     }
 
+    //utility function to return start of next day
     public static Date getStartOfNextDay() {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -85,5 +91,12 @@ public class Utilities {
         return calendar.getTime();
     }
 
+    //utility function to init textView with required settings
+    public static void initTextView(TextView mTextView, int gravity, int typeFace, int color, String text){
+        mTextView.setGravity(gravity);
+        mTextView.setTypeface(null, typeFace);
+        mTextView.setTextColor(color);
+        mTextView.setText(text);
+    }
 
 }
