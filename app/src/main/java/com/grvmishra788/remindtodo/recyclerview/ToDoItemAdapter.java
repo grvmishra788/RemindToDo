@@ -4,8 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +27,7 @@ import com.grvmishra788.remindtodo.basic.Utilities;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_DAY_AND_DATE;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_ONLY_TIME;
@@ -57,13 +63,18 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
     //Variable to store type of fragment launching the adapter
     private int mCategory;
 
+    //Variable to store selectedItem positions when launching Contextual action mode
+    private TreeSet<Integer> selectedItems = new TreeSet<>();
+
     //ToDoItemViewHolder nested class : holds RecyclerView elements defined in layout_todoitem.xml
     public class ToDoItemViewHolder extends RecyclerView.ViewHolder {
+        public CardView mRootView;
         public ImageView mImageView, mReminderActiveView;
         public TextView mTextView1, mTextView2;
 
         public ToDoItemViewHolder(@NonNull View itemView) {
             super(itemView);
+            mRootView = itemView.findViewById(R.id.basicLayout);
             mImageView = itemView.findViewById(R.id.imageView);
             mTextView1 = itemView.findViewById(R.id.textView1);
             mTextView2 = itemView.findViewById(R.id.textView2);
@@ -76,6 +87,18 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
                     if (mOnToDoItemClickListener != null && position != RecyclerView.NO_POSITION) {
                         mOnToDoItemClickListener.onToDoItemClick(position);
                     }
+                }
+            });
+
+            //perform necessary ops if current item is long clicked
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    int position = getAdapterPosition();
+                    if (mOnToDoItemClickListener != null && position != RecyclerView.NO_POSITION) {
+                        mOnToDoItemClickListener.onToDoItemLongClick(position);
+                    }
+                    return true;
                 }
             });
         }
@@ -101,6 +124,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         return mToDoItemViewHolder;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onBindViewHolder(@NonNull ToDoItemViewHolder mToDoItemViewHolder, int index) {
         Log.d(TAG, "Started binding corresponding View Holder to " + Integer.toString(index) + "-th ToDoItem.");
@@ -129,6 +153,16 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
             mToDoItemViewHolder.itemView.setVisibility(View.GONE);
             mToDoItemViewHolder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
         }
+
+        if (selectedItems.contains(index)){
+            //if item is selected then,set foreground color of FrameLayout.
+            mToDoItemViewHolder.mRootView.setForeground(new ColorDrawable(ContextCompat.getColor(getContext(),R.color.colorControlActivated)));
+        }
+        else {
+            //else remove selected item color.
+            mToDoItemViewHolder.mRootView.setForeground(new ColorDrawable(ContextCompat.getColor(getContext(),android.R.color.transparent)));
+        }
+
         Log.d(TAG, "Completed binding corresponding View Holder to " + Integer.toString(index) + "-th ToDoItem.");
     }
 
@@ -246,6 +280,12 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         mToDoItems.addAll(matchingList);
         notifyDataSetChanged();
         Log.d(TAG, "updateList() completed");
+    }
+
+    //method to update selected items
+    public void setSelectedItems(TreeSet<Integer> selectedItems) {
+        this.selectedItems = selectedItems;
+        notifyDataSetChanged();
     }
 
 }

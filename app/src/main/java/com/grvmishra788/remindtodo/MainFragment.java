@@ -9,12 +9,17 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -33,7 +38,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
@@ -76,6 +83,11 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
 
     //Variable to store Comparator object
     Comparator<ToDoItem> mToDoItemComparator;
+
+    // fields to help keep track of app’s state for Contextual Action Mode
+    private boolean isMultiSelect = false;
+    private TreeSet<Integer> selectedItems = new TreeSet<>();
+    private ActionMode actionMode;
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -136,19 +148,98 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
         ((ToDoItemAdapter) mRecyclerViewAdapter).setOnToDoItemClickListener(new OnToDoItemClickListener() {
             @Override
             public void onToDoItemClick(int position) {
-                ToDoItem mToDoItem = mToDoItems.get(position);
-                Intent mEditToDoItemIntent = new Intent(getContext(), AddOrEditToDoItemActivity.class);
-                mEditToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItem.getmItemDescription());
-                mEditToDoItemIntent.putExtra(EXTRA_DATE, mToDoItem.getmItemDate().getTime());
-                mEditToDoItemIntent.putExtra(EXTRA_REMINDER, mToDoItem.getmItemSetReminder());
-                mEditToDoItemIntent.putExtra(EXTRA_POSITION, position);
-                mEditToDoItemIntent.putExtra(EXTRA_TASK_FINISHED, (mToDoItem.getmItemCategory()==R.drawable.ic_finished)?true:false);
-                startActivityForResult(mEditToDoItemIntent, EDIT_TO_DO_ITEM);
+                Log.d(TAG, "onToDoItemClick called at position - "+String.valueOf(position));
+                if (isMultiSelect){
+                    //if multiple selection is enabled then select item on single click
+                    selectMultiple(position);
+                }else {
+                    //else perform normal click on item.
+                    ToDoItem mToDoItem = mToDoItems.get(position);
+                    Intent mEditToDoItemIntent = new Intent(getContext(), AddOrEditToDoItemActivity.class);
+                    mEditToDoItemIntent.putExtra(EXTRA_DESCRIPTION, mToDoItem.getmItemDescription());
+                    mEditToDoItemIntent.putExtra(EXTRA_DATE, mToDoItem.getmItemDate().getTime());
+                    mEditToDoItemIntent.putExtra(EXTRA_REMINDER, mToDoItem.getmItemSetReminder());
+                    mEditToDoItemIntent.putExtra(EXTRA_POSITION, position);
+                    mEditToDoItemIntent.putExtra(EXTRA_TASK_FINISHED, (mToDoItem.getmItemCategory()==R.drawable.ic_finished)?true:false);
+                    startActivityForResult(mEditToDoItemIntent, EDIT_TO_DO_ITEM);
+                }
+            }
+
+            @Override
+            public void onToDoItemLongClick(int position) {
+                Log.d(TAG, "onToDoItemLongClick called at position - "+String.valueOf(position));
+                if (!isMultiSelect){
+                    //init select items and ismultiselect on long click
+                    selectedItems = new TreeSet<>();
+                    isMultiSelect = true;
+                    if (actionMode == null){
+                        //show ActionMode on long click
+                        actionMode = ((AppCompatActivity)getContext()).startSupportActionMode(actionModeCallbacks);
+                    }
+                }
+                selectMultiple(position);
             }
         });
         checkIfEmpty();
         return view;
     }
+
+    //function to multi-select once contextual action mode is launched
+    private void selectMultiple(int position) {
+        Log.d(TAG, "selectMultiple() called at position - "+String.valueOf(position));
+            if (actionMode != null) {
+                if (selectedItems.contains(position))
+                    selectedItems.remove(position);
+                else
+                    selectedItems.add(position);
+
+                if (selectedItems.size() > 0) {
+                    actionMode.setTitle(String.valueOf(selectedItems.size())); //show selected item count on action mode.
+                } else{
+                    actionMode.setTitle(""); //remove item count from action mode.
+                    actionMode.finish(); //hide action mode.
+                }
+                ((ToDoItemAdapter)mRecyclerViewAdapter).setSelectedItems(selectedItems);
+
+            }
+    }
+
+    // ActionMode.Callback for contextual action mode
+    private ActionMode.Callback actionModeCallbacks = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            isMultiSelect = true;
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.contextual_action_mode_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            Iterator<Integer> iterator = selectedItems.descendingIterator();
+            while (iterator.hasNext()) {
+                int pos = iterator.next();
+                mToDoItems.remove(pos);
+                mRecyclerViewAdapter.notifyItemRemoved(pos);
+            }
+            Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            ((ToDoItemAdapter)mRecyclerViewAdapter).setSelectedItems(new TreeSet<Integer>());
+            isMultiSelect=false;
+            selectedItems.clear();
+            actionMode=null;
+        }
+    };
 
     private void getComparator(int comparatorType) {
         // 0 -> Alphabetical, 1-> Due Date
