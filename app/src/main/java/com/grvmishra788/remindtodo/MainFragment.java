@@ -3,12 +3,14 @@ package com.grvmishra788.remindtodo;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
@@ -220,15 +222,38 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
         }
 
         @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            Iterator<Integer> iterator = selectedItems.descendingIterator();
-            while (iterator.hasNext()) {
-                int pos = iterator.next();
-                mToDoItems.remove(pos);
-                mRecyclerViewAdapter.notifyItemRemoved(pos);
-            }
-            Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
-            mode.finish();
+        public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+
+            //create AlertDialog to check if user actually wants to delete ToDos
+            final AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+            alert.setTitle("Delete ToDos");
+            alert.setMessage("Are you sure you want to delete?");
+            alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Log.d(TAG, "Positive button clicked on Delete alert dialog!!");
+                    //delete todos from end to start so as to avoid accidental damage to todolist
+                    Iterator<Integer> iterator = selectedItems.descendingIterator();
+                    while (iterator.hasNext()) {
+                        int pos = iterator.next();
+                        mToDoItems.remove(pos);
+                        mRecyclerViewAdapter.notifyItemRemoved(pos);
+                    }
+                    Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
+                    mode.finish();
+                }
+            });
+
+            alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Log.d(TAG, "Negative button clicked on Delete alert dialog!!");
+                    dialogInterface.cancel();
+                }
+            });
+
+            //show dialog
+            alert.show();
             return true;
         }
 
