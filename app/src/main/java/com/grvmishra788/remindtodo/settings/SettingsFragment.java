@@ -1,6 +1,7 @@
 package com.grvmishra788.remindtodo.settings;
 
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -22,7 +23,41 @@ public class SettingsFragment extends PreferenceFragment {
         initListPreference("pref_listType");
         initListPreference("pref_sortType");
 
+        //init CheckBox Preferences
+        initCheckBoxPreference("pref_24hourView");
+
         Log.d(TAG, "OnCreate() completed ");
+    }
+
+    private void initCheckBoxPreference(String type){
+        Log.d(TAG, "initCheckBoxPreference() called for type - "+type);
+        //init CheckBoxPreference variable
+        CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference("pref_24hourView");
+
+        //set summary based on whether checkbox is enabled/disabled
+        if(checkBoxPreference.isChecked()){
+            checkBoxPreference.setSummary("Enabled");
+        } else {
+            checkBoxPreference.setSummary("Disabled");
+        }
+
+        //set its OnPreferenceChangeListener
+        checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                CheckBoxPreference checkBoxPreference1 = (CheckBoxPreference) preference;
+                if(checkBoxPreference1.isChecked()){
+                    //if earlier preference was checked, now it will be disabled
+                    preference.setSummary("Disabled");
+                } else {
+                    //else, now it will be enabled
+                    preference.setSummary("Enabled");
+                }
+                return true;
+            }
+        });
+
+        Log.d(TAG, "initCheckBoxPreference() completed for type - "+type);
     }
 
     private void initListPreference(String type){

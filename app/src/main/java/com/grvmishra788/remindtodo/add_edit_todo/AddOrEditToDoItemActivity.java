@@ -21,15 +21,14 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.grvmishra788.remindtodo.MainActivity;
 import com.grvmishra788.remindtodo.R;
 import com.grvmishra788.remindtodo.basic.Utilities;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.UUID;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
@@ -42,7 +41,8 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
     public static final String EXTRA_REMINDER = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_REMINDER";
     public static final String EXTRA_POSITION = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_POSITION";
     public static final String EXTRA_TASK_FINISHED = "com.grvmishra788.remindtodo.add_edit_todo.EXTRA_TASK_FINISHED";
-    public static final String DATE_FORMAT_ONLY_TIME = "hh:mm a"; //Date format string to show just time
+    public static final String DATE_FORMAT_ONLY_TIME_1 = "hh:mm a"; //Date format string to show just time - in 12 hour view
+    public static final String DATE_FORMAT_ONLY_TIME_2 = "HH:mm"; //Date format string to show just time - in  24 hour view
     public static final String DATE_FORMAT_DAY_AND_DATE = "EEE - MMM dd, yyyy"; //Date format string to show Day and Date
 
     //constant request code for Intent started by mSpeechButton
@@ -163,7 +163,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             mTaskFinishedSwitch.setVisibility(View.VISIBLE);
 
             //set mEditTime with existing ToDoITem time
-            sdf=new SimpleDateFormat(DATE_FORMAT_ONLY_TIME);
+            sdf=new SimpleDateFormat(MainActivity.getDefaultDateDisplayFormat());
             currentDateTimeString = sdf.format(mDate);
             mEditTime.setText(currentDateTimeString);
             Log.d(TAG, "Completed setting default fields as activity started to Edit ToDo Item Intent");
@@ -287,7 +287,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
         Log.d(TAG, "OnTimeSetListener() call started");
         mDate.setHours(hour);
         mDate.setMinutes(minute);
-        SimpleDateFormat sdf=new SimpleDateFormat(DATE_FORMAT_ONLY_TIME);
+        SimpleDateFormat sdf=new SimpleDateFormat(MainActivity.getDefaultDateDisplayFormat());
         String currentDateTimeString = sdf.format(mDate);
         mEditTime.setText(currentDateTimeString);
         Log.d(TAG, "OnTimeSetListener() call completed");

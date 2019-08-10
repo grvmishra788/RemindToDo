@@ -21,4 +21,9 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
 
+    <CheckBoxPreference
+        android:key="pref_24hourView"
+        android:title="Enable 24-hour time format"
+        android:defaultValue="false"/>
+
 </PreferenceScreen>

@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.grvmishra788.remindtodo.MainActivity;
 import com.grvmishra788.remindtodo.R;
 import com.grvmishra788.remindtodo.basic.ToDoItem;
 import com.grvmishra788.remindtodo.basic.Utilities;
@@ -30,7 +31,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_DAY_AND_DATE;
-import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_ONLY_TIME;
 
 public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoItemViewHolder> {
 
@@ -140,7 +140,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
             //bind resources to view as per ToDoItem
             mToDoItemViewHolder.mImageView.setImageResource(currentToDoItem.getmItemCategory());
             mToDoItemViewHolder.mTextView1.setText(currentToDoItem.getmItemDescription());
-            mToDoItemViewHolder.mTextView2.setText(new SimpleDateFormat(DATE_FORMAT_DAY_AND_DATE+", "+DATE_FORMAT_ONLY_TIME).format(currentToDoItem.getmItemDate()).toString().trim());
+            mToDoItemViewHolder.mTextView2.setText(new SimpleDateFormat(DATE_FORMAT_DAY_AND_DATE+", "+ MainActivity.getDefaultDateDisplayFormat()).format(currentToDoItem.getmItemDate()).toString().trim());
             if(currentToDoItem.getmItemSetReminder()==true){
                 mToDoItemViewHolder.mReminderActiveView.setVisibility(View.VISIBLE);
                 mToDoItemViewHolder.mReminderActiveView.setImageResource(R.drawable.ic_notifications_active);

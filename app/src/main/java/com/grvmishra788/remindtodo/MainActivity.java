@@ -29,6 +29,8 @@ import com.grvmishra788.remindtodo.settings.SettingsActivity;
 
 import static com.grvmishra788.remindtodo.MainFragment.COMPARATOR_TYPE;
 import static com.grvmishra788.remindtodo.MainFragment.FRAGMENT_CATEGORY;
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_ONLY_TIME_1;
+import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_ONLY_TIME_2;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -47,6 +49,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Variable to store default Comparator Type
     // 0 -> Alphabetical, 1-> Due Date
     private int defaultComparatorType;
+
+    //Variable to store default Date Format
+    // DATE_FORMAT_ONLY_TIME_1 -> 12-hour-view, DATE_FORMAT_ONLY_TIME_2-> 24-hour-view
+    private static String defaultDateDisplayFormat;
 
     //SearchView Variable
     SearchView mSearchView;
@@ -70,14 +76,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // 0 -> ongoing should be the selected fragment type if user hasn't selected any
         // 0 -> alphabetical sorting should be the selected defaultComparatorType if user hasn't selected any
         if (userPreferences != null) {
-            // get defaultFragmentValue & defaultComparatorType from default Shared Preference
+            // get defaultFragmentValue, defaultComparatorType & defaultDateDisplayFormat from default Shared Preference
             String defaultFragment = userPreferences.getString("pref_listType", "0");
             defaultFragmentValue = (defaultFragment == null) ? 0 : Integer.parseInt(defaultFragment);
             String defaultComparator = userPreferences.getString("pref_sortType", "0");
             defaultComparatorType = (defaultComparator == null) ? 0 : Integer.parseInt(defaultComparator);
+            boolean defaultDateFormat = userPreferences.getBoolean("pref_24hourView", false);
+            defaultDateDisplayFormat = (defaultDateFormat == false)? DATE_FORMAT_ONLY_TIME_1 : DATE_FORMAT_ONLY_TIME_2;
         } else {
             defaultFragmentValue = 0;
             defaultComparatorType = 0;
+            defaultDateDisplayFormat = DATE_FORMAT_ONLY_TIME_1;
         }
         //-------------------------------------------------------------//
 
@@ -239,6 +248,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Utilities.initTextView(finishedCount, Gravity.CENTER_VERTICAL, Typeface.BOLD, getResources().getColor(R.color.colorAccent), String.valueOf(itemCounts[3]));
         Utilities.initTextView(overdueCount, Gravity.CENTER_VERTICAL, Typeface.BOLD, getResources().getColor(R.color.colorAccent), String.valueOf(itemCounts[4]));
         Log.d(TAG, "initializeCountDrawer() completed ");
+    }
+
+    //function to return the default date display format set by user
+    public static String getDefaultDateDisplayFormat(){
+        return defaultDateDisplayFormat;
     }
 
 }
