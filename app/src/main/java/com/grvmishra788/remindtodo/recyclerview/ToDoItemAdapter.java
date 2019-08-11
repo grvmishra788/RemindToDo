@@ -227,7 +227,8 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         Snackbar snackbar;
         if (type == UNDO_TODO_COMPLETED) {//If ToDoITem Completed
             snackbar = Snackbar.make(view, "1 ToDo Completed", Snackbar.LENGTH_LONG);
-            snackbar.setAction("UNDO", new View.OnClickListener() {
+            if(MainActivity.getDefaultConfirmFinish() == true)
+                snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     undoComplete();

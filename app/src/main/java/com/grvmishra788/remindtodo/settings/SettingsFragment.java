@@ -25,6 +25,7 @@ public class SettingsFragment extends PreferenceFragment {
 
         //init CheckBox Preferences
         initCheckBoxPreference("pref_24hourView");
+        initCheckBoxPreference("pref_confirmFinishing");
 
         Log.d(TAG, "OnCreate() completed ");
     }
@@ -32,7 +33,7 @@ public class SettingsFragment extends PreferenceFragment {
     private void initCheckBoxPreference(String type){
         Log.d(TAG, "initCheckBoxPreference() called for type - "+type);
         //init CheckBoxPreference variable
-        CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference("pref_24hourView");
+        CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(type);
 
         //set summary based on whether checkbox is enabled/disabled
         if(checkBoxPreference.isChecked()){

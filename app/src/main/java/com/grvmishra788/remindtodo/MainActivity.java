@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // DATE_FORMAT_ONLY_TIME_1 -> 12-hour-view, DATE_FORMAT_ONLY_TIME_2-> 24-hour-view
     private static String defaultDateDisplayFormat;
 
+    //Variable to store if confirming task finish is required or not
+    private static boolean defaultConfirmFinish;
+
     //SearchView Variable
     SearchView mSearchView;
 
@@ -83,10 +86,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultComparatorType = (defaultComparator == null) ? 0 : Integer.parseInt(defaultComparator);
             boolean defaultDateFormat = userPreferences.getBoolean("pref_24hourView", false);
             defaultDateDisplayFormat = (defaultDateFormat == false)? DATE_FORMAT_ONLY_TIME_1 : DATE_FORMAT_ONLY_TIME_2;
+            defaultConfirmFinish = userPreferences.getBoolean("pref_confirmFinishing", true);
         } else {
             defaultFragmentValue = 0;
             defaultComparatorType = 0;
             defaultDateDisplayFormat = DATE_FORMAT_ONLY_TIME_1;
+            defaultConfirmFinish = true;
         }
         //-------------------------------------------------------------//
 
@@ -253,6 +258,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //function to return the default date display format set by user
     public static String getDefaultDateDisplayFormat(){
         return defaultDateDisplayFormat;
+    }
+
+    //function to return if confirming task finish is required or not
+    public static boolean getDefaultConfirmFinish(){
+        return defaultConfirmFinish;
     }
 
 }

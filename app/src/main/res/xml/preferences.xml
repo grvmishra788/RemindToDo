@@ -26,4 +26,9 @@
         android:title="Enable 24-hour time format"
         android:defaultValue="false"/>
 
+    <CheckBoxPreference
+        android:key="pref_confirmFinishing"
+        android:title="Confirm Finishing Tasks"
+        android:defaultValue="true"/>
+
 </PreferenceScreen>
