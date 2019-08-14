@@ -501,7 +501,7 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
             }
         }
         //update list in recyclerView adapter
-        ((ToDoItemAdapter)mRecyclerViewAdapter).updateList(matchedList);
+        ((ToDoItemAdapter)mRecyclerViewAdapter).updateListAndSearchText(matchedList, s);
         return true;
     }
 

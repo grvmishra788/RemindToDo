@@ -12,6 +12,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +31,7 @@ import com.grvmishra788.remindtodo.basic.Utilities;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeSet;
 
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.DATE_FORMAT_DAY_AND_DATE;
@@ -65,6 +69,9 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
 
     //Variable to store selectedItem positions when launching Contextual action mode
     private TreeSet<Integer> selectedItems = new TreeSet<>();
+
+    //Variable to store query text in MainFragment's Searchview, if any
+    private String mSearchText;
 
     //ToDoItemViewHolder nested class : holds RecyclerView elements defined in layout_todoitem.xml
     public class ToDoItemViewHolder extends RecyclerView.ViewHolder {
@@ -111,6 +118,7 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         this.mSharedPreferences = mSharedPreferences;
         this.mToDoItems = mToDoItems;
         this.mCategory = mCategory;
+        mSearchText = "";
         Log.d(TAG, TAG + ": Constructor ends");
     }
 
@@ -152,6 +160,23 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
             //hide itemView if ToDoItem doesnt belong to current Fragment category
             mToDoItemViewHolder.itemView.setVisibility(View.GONE);
             mToDoItemViewHolder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+        }
+
+        //if view is being binded while Searchview has some query
+        if( mSearchText != null && !mSearchText.isEmpty()){
+            //get the start & ending position of query in matched Item
+            int startPos = currentToDoItem.getmItemDescription().toLowerCase(Locale.US).indexOf(mSearchText.toLowerCase(Locale.US));
+            int endPos = startPos + mSearchText.length();
+
+            //if its a valid start position
+            if (startPos != -1) {
+                //Crete a spannable string with highlighted text
+                Spannable spannable = new SpannableString(currentToDoItem.getmItemDescription());
+                BackgroundColorSpan highlightSpan = new BackgroundColorSpan(Color.YELLOW);
+                spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                //show the spannable text in corresponding textview
+                mToDoItemViewHolder.mTextView1.setText(spannable);
+            }
         }
 
         if (selectedItems.contains(index)){
@@ -274,11 +299,12 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
         this.mOnToDoItemClickListener = mOnToDoItemClickListener;
     }
 
-    //method to update mToDoItems List while toDoItem search is going on
-    public void updateList(List<ToDoItem> matchingList){
+    //method to update mToDoItems List as well as the query text while toDoItem search is going on
+    public void updateListAndSearchText(List<ToDoItem> matchingList, String searchText){
         Log.d(TAG, "updateList() called");
         mToDoItems = new ArrayList<>();
         mToDoItems.addAll(matchingList);
+        mSearchText = searchText;
         notifyDataSetChanged();
         Log.d(TAG, "updateList() completed");
     }
