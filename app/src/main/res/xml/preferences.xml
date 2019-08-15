@@ -31,4 +31,9 @@
         android:title="Confirm Finishing Tasks"
         android:defaultValue="true"/>
 
+    <CheckBoxPreference
+        android:key="pref_confirmDeleting"
+        android:title="Confirm Deleting Tasks"
+        android:defaultValue="true"/>
+
 </PreferenceScreen>

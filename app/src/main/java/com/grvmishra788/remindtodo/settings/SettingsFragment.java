@@ -26,6 +26,7 @@ public class SettingsFragment extends PreferenceFragment {
         //init CheckBox Preferences
         initCheckBoxPreference("pref_24hourView");
         initCheckBoxPreference("pref_confirmFinishing");
+        initCheckBoxPreference("pref_confirmDeleting");
 
         Log.d(TAG, "OnCreate() completed ");
     }

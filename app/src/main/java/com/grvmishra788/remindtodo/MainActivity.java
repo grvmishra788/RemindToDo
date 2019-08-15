@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Variable to store if confirming task finish is required or not
     private static boolean defaultConfirmFinish;
 
+    //Variable to store if confirming task delete is required or not
+    private static boolean defaultConfirmDelete;
+
     //SearchView Variable
     SearchView mSearchView;
 
@@ -87,11 +90,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             boolean defaultDateFormat = userPreferences.getBoolean("pref_24hourView", false);
             defaultDateDisplayFormat = (defaultDateFormat == false)? DATE_FORMAT_ONLY_TIME_1 : DATE_FORMAT_ONLY_TIME_2;
             defaultConfirmFinish = userPreferences.getBoolean("pref_confirmFinishing", true);
+            defaultConfirmDelete = userPreferences.getBoolean("pref_confirmDeleting", true);
         } else {
             defaultFragmentValue = 0;
             defaultComparatorType = 0;
             defaultDateDisplayFormat = DATE_FORMAT_ONLY_TIME_1;
             defaultConfirmFinish = true;
+            defaultConfirmDelete = true;
         }
         //-------------------------------------------------------------//
 
@@ -263,6 +268,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //function to return if confirming task finish is required or not
     public static boolean getDefaultConfirmFinish(){
         return defaultConfirmFinish;
+    }
+
+    //function to return if confirming task delete is required or not
+    public static boolean getDefaultConfirmDelete(){
+        return defaultConfirmDelete;
     }
 
 }

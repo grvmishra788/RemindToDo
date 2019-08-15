@@ -261,7 +261,8 @@ public class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ToDoIt
             });
         } else if (type == UNDO_TODO_DELETED) { //if ToDoItem Deleted
             snackbar = Snackbar.make(view, "1 ToDo Deleted", Snackbar.LENGTH_LONG);
-            snackbar.setAction("UNDO", new View.OnClickListener() {
+            if(MainActivity.getDefaultConfirmDelete() == true)
+                snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     undoDelete();
