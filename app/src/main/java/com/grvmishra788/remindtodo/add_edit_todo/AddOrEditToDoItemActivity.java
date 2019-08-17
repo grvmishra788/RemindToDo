@@ -139,7 +139,7 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
 
         //check if this intent was sent to Edit or Add ToDoItem and set title accordingly
         if (mActivityStartingIntent.hasExtra(EXTRA_POSITION)) {
-            Log.d(TAG, "Started setting default fields as activity started to Edit ToDo Item Intent");
+            Log.d(TAG, "Started setting default fields as activity started by EDIT_TO_DO_ITEM Intent");
             //incase intent was sent to Edit ToDoItem
 
             //set Title of activity as Edit ToDoItem
@@ -175,10 +175,19 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
             mTaskFinishedSwitch.setChecked(mActivityStartingIntent.getExtras().getBoolean(EXTRA_TASK_FINISHED));
         }
         else {
-            //incase intent was sent to Add ToDoItem
-            //set Title of activity as Add ToDoItem
-            setTitle("Add ToDo Item");
-            Log.d(TAG, "Completed setting title as activity started to Add ToDo Item Intent");
+            if(mActivityStartingIntent.hasExtra(EXTRA_DESCRIPTION)){
+                //incase intent was sent to Add ToDoItem from clipboard
+                //set Title of activity as Add ToDoItem
+                setTitle("Add ToDo Item");
+                //set mEditText with existing ToDoITem description
+                mEditText.setText(mActivityStartingIntent.getStringExtra(EXTRA_DESCRIPTION));
+                Log.d(TAG, "Completed setting title & description field as activity started by ADD_TO_DO_ITEM_FROM_CLIPBOARD Intent");
+            } else {
+                //incase intent was sent to Add ToDoItem
+                //set Title of activity as Add ToDoItem
+                setTitle("Add ToDo Item");
+                Log.d(TAG, "Completed setting title as activity started by ADD_TO_DO_ITEM_FROM_CLIPBOARD Intent");
+            }
         }
     }
 

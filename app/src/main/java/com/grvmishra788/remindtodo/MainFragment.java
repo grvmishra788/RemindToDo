@@ -2,11 +2,15 @@ package com.grvmishra788.remindtodo;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -45,6 +49,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -61,7 +66,8 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
     public static final String FRAGMENT_CATEGORY = "com.grvmishra788.remindtodo.FRAGMENT_CATEGORY";
     public static final String COMPARATOR_TYPE = "com.grvmishra788.remindtodo.COMPARATOR_TYPE";
     public static final int ADD_TO_DO_ITEM = 1;
-    public static final int EDIT_TO_DO_ITEM = 2;
+    public static final int ADD_TO_DO_ITEM_FROM_CLIPBOARD = 2;
+    public static final int EDIT_TO_DO_ITEM = 3;
 
     //recyclerView variables
     private RecyclerView mRecyclerview;
@@ -147,6 +153,9 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(new RecyclerViewSwipeToDeleteCallback((ToDoItemAdapter) mRecyclerViewAdapter));
         mItemTouchHelper.attachToRecyclerView(mRecyclerview);
 
+        //setup alert dialog to add ToDoItem from clipboard
+        initClipboardAdd();
+
         ((ToDoItemAdapter) mRecyclerViewAdapter).setOnToDoItemClickListener(new OnToDoItemClickListener() {
             @Override
             public void onToDoItemClick(int position) {
@@ -184,6 +193,49 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
         });
         checkIfEmpty();
         return view;
+    }
+
+    //function to add ToDoItem from clipboard
+    private void initClipboardAdd() {
+        Log.d(TAG, "initClipboardAdd() called");
+        //Get clipboard manager
+        final ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
+        if(clipboardManager.hasPrimaryClip()){
+            //get clipped string
+            ClipData clipDataObject = clipboardManager.getPrimaryClip();
+            ClipData.Item item = clipDataObject.getItemAt(0);
+            final String clipData = item.getText().toString();
+
+            if(clipData!=null && !clipData.isEmpty()){
+                //create AlertDialog to check if user actually wants to add this item to ToDolist
+                final AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                alert.setTitle("Do you want to add this item to your ToDo list?");
+                alert.setMessage(clipData);
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.P)
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d(TAG, "Negative button clicked on Add ToDo alert dialog!!");
+                        ClipData clip = ClipData.newPlainText(null, "");
+                        clipboardManager.setPrimaryClip(clip);
+                    }
+                });
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d(TAG, "Positive button clicked on Add ToDo alert dialog!!");
+                        Intent mAddToDoItemIntent = new Intent(getContext(), AddOrEditToDoItemActivity.class);
+                        mAddToDoItemIntent.putExtra(EXTRA_DESCRIPTION, clipData);
+                        startActivityForResult(mAddToDoItemIntent, ADD_TO_DO_ITEM_FROM_CLIPBOARD);
+                        ClipData clip = ClipData.newPlainText(null, "");
+                        clipboardManager.setPrimaryClip(clip);
+                    }
+                });
+                //show dialog
+                alert.show();
+            }
+        }
+        Log.d(TAG, "initClipboardAdd() completed!");
     }
 
     //function to multi-select once contextual action mode is launched
@@ -360,7 +412,7 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
         Log.d(TAG, "onActivityResult called for requestCode = " + Integer.toString(requestCode));
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == ADD_TO_DO_ITEM && resultCode == RESULT_OK) {
+        if ((requestCode == ADD_TO_DO_ITEM || requestCode == ADD_TO_DO_ITEM_FROM_CLIPBOARD) && resultCode == RESULT_OK) {
 
             //obtain mToDoItemDescription & mToDoItemDate
             String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
