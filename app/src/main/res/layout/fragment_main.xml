@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_relative_layout"
@@ -29,13 +29,17 @@
         android:padding="4dp"
         android:scrollbars="vertical" />
 
+    <include layout="@layout/layout_fab1_submenu" />
+
+    <include layout="@layout/layout_fab2_submenu" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addToDoITemBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom|right"
+        android:layout_gravity="bottom|end"
         android:layout_margin="32dp"
         android:padding="0dp"
         android:scaleType="fitXY"
@@ -44,4 +48,4 @@
         app:fabSize="normal" />
 
 
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

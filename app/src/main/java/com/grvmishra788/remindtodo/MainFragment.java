@@ -1,5 +1,6 @@
 package com.grvmishra788.remindtodo;
 
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ClipData;
@@ -8,12 +9,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -28,6 +31,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +56,7 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DATE;
 import static com.grvmishra788.remindtodo.add_edit_todo.AddOrEditToDoItemActivity.EXTRA_DESCRIPTION;
@@ -81,7 +86,13 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
     private SharedPreferences mSharedPreferences;
 
     //FloatingActionButton variable
-    private FloatingActionButton mButton;
+    private FloatingActionButton mButton, mAddToDoNormallyBtn, mAddToDoFromClipboardBtn;
+
+    //Variable to store LinearLayouts containing FABs
+    private LinearLayout mAddToDoNormallyLayout, mAddToDoFromClipboardLayout;
+
+    //Variable to store state of Main FAB
+    private boolean fabExpanded;
 
     //Fragment category
     private int mCategory;
@@ -127,14 +138,55 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
             Utilities.saveToDoListToSharedPreferences(mSharedPreferences, mToDoItems);
         }
 
-        //On Button click, save current ToDoItem if there is some text present in mEditText
-        //else popup a toast to notify the user
+        //init Linear Layout containing FABs
+        mAddToDoNormallyLayout = (LinearLayout) view.findViewById(R.id.layoutFabAddToDoNormally);
+        mAddToDoFromClipboardLayout = (LinearLayout) view.findViewById(R.id.layoutFabAddToDoFromClipboard);
+
+        //init boolean variable storing state of Main FAB
+        fabExpanded = false;
+
+        //init Floating Action Buttons & set their onclick listeneres
+        //init Default FAB
         mButton = (FloatingActionButton) view.findViewById(R.id.addToDoITemBtn);
         mButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+                if(fabExpanded){
+                    //hide LinearLayouts containing FABs & change state of MAin FAB
+                    hideSubMenusFAB();
+                } else {
+                    //show LinearLayouts containing FABs & change state of MAin FAB
+                    openSubMenusFAB();
+                }
+            }
+        });
+
+        //init AddToDoNormally FAB
+        mAddToDoNormallyBtn = (FloatingActionButton) view.findViewById(R.id.addToDoITemNormallyBtn);
+        mAddToDoNormallyBtn.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.M)
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
                 Intent mToDoItemIntent = new Intent(getContext(), AddOrEditToDoItemActivity.class);
                 startActivityForResult(mToDoItemIntent, ADD_TO_DO_ITEM);
+                //hide LinearLayouts containing FABs & change state of MAin FAB
+                hideSubMenusFAB();
+
+            }
+        });
+
+        //init AddToDoFromClipboard FAB
+        mAddToDoFromClipboardBtn = (FloatingActionButton) view.findViewById(R.id.addToDoITemFromClipBoardBtn);
+        mAddToDoFromClipboardBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+                //setup alert dialog to add ToDoItem from clipboard
+                initClipboardAdd();
+                //hide LinearLayouts containing FABs & change state of MAin FAB
+                hideSubMenusFAB();
             }
         });
 
@@ -152,9 +204,6 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
 
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(new RecyclerViewSwipeToDeleteCallback((ToDoItemAdapter) mRecyclerViewAdapter));
         mItemTouchHelper.attachToRecyclerView(mRecyclerview);
-
-        //setup alert dialog to add ToDoItem from clipboard
-        initClipboardAdd();
 
         ((ToDoItemAdapter) mRecyclerViewAdapter).setOnToDoItemClickListener(new OnToDoItemClickListener() {
             @Override
@@ -195,6 +244,26 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
         return view;
     }
 
+    //function to show FAB submenu
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void openSubMenusFAB(){
+        mRecyclerview.setForeground(new ColorDrawable(ContextCompat.getColor(getContext(),R.color.colorBackgroundTransparent)));
+        mButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_remove_circle));
+        mAddToDoNormallyLayout.setVisibility(VISIBLE);
+        mAddToDoFromClipboardLayout.setVisibility(VISIBLE);
+        fabExpanded = true;
+    }
+
+    //function to hide FAB submenu
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void hideSubMenusFAB(){
+        mRecyclerview.setForeground(new ColorDrawable(ContextCompat.getColor(getContext(),android.R.color.transparent)));
+        mButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_todoitem));
+        mAddToDoNormallyLayout.setVisibility(INVISIBLE);
+        mAddToDoFromClipboardLayout.setVisibility(INVISIBLE);
+        fabExpanded = false;
+    }
+
     //function to add ToDoItem from clipboard
     private void initClipboardAdd() {
         Log.d(TAG, "initClipboardAdd() called");
@@ -233,7 +302,11 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
                 });
                 //show dialog
                 alert.show();
+            } else {
+                Toast.makeText(getContext(), "No entry present on clipboard!!", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            Toast.makeText(getContext(), "No entry present on clipboard!!", Toast.LENGTH_SHORT).show();
         }
         Log.d(TAG, "initClipboardAdd() completed!");
     }
