@@ -45,7 +45,8 @@
         android:scaleType="fitXY"
         android:src="@drawable/ic_add_todoitem"
         app:backgroundTint="@android:color/white"
-        app:fabSize="normal" />
+        app:fabSize="normal"
+        app:maxImageSize="@dimen/fab_size_normal" />
 
 
 </android.support.design.widget.CoordinatorLayout>

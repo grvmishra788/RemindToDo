@@ -249,8 +249,18 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
     private void openSubMenusFAB(){
         mRecyclerview.setForeground(new ColorDrawable(ContextCompat.getColor(getContext(),R.color.colorBackgroundTransparent)));
         mButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_remove_circle));
-        mAddToDoNormallyLayout.setVisibility(VISIBLE);
-        mAddToDoFromClipboardLayout.setVisibility(VISIBLE);
+        mAddToDoNormallyLayout.animate().translationY(-getResources().getDimension(R.dimen.standard_70)).withStartAction(new Runnable() {
+            @Override
+            public void run() {
+                mAddToDoNormallyLayout.setVisibility(VISIBLE);
+            }
+        });
+        mAddToDoFromClipboardLayout.animate().translationY(-getResources().getDimension(R.dimen.standard_120)).withStartAction(new Runnable() {
+            @Override
+            public void run() {
+                mAddToDoFromClipboardLayout.setVisibility(VISIBLE);
+            }
+        });
         fabExpanded = true;
     }
 
@@ -259,8 +269,18 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
     private void hideSubMenusFAB(){
         mRecyclerview.setForeground(new ColorDrawable(ContextCompat.getColor(getContext(),android.R.color.transparent)));
         mButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_todoitem));
-        mAddToDoNormallyLayout.setVisibility(INVISIBLE);
-        mAddToDoFromClipboardLayout.setVisibility(INVISIBLE);
+        mAddToDoNormallyLayout.animate().translationY(0).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                mAddToDoNormallyLayout.setVisibility(INVISIBLE);
+            }
+        });
+        mAddToDoFromClipboardLayout.animate().translationY(0).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                mAddToDoFromClipboardLayout.setVisibility(INVISIBLE);
+            }
+        });
         fabExpanded = false;
     }
 
