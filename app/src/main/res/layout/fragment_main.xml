@@ -29,6 +29,14 @@
         android:padding="4dp"
         android:scrollbars="vertical" />
 
+    <!-- View to show the alpha background on RecyclerView -->
+    <View
+        android:id="@+id/shadowView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#EEFFFFFF"
+        android:visibility="gone" />
+
     <include layout="@layout/layout_fab1_submenu" />
 
     <include layout="@layout/layout_fab2_submenu" />

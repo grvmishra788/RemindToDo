@@ -74,6 +74,9 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
     public static final int ADD_TO_DO_ITEM_FROM_CLIPBOARD = 2;
     public static final int EDIT_TO_DO_ITEM = 3;
 
+    //Variable to store shadow layouts
+    private View mShadowView, mShadowViewToolbar;
+
     //recyclerView variables
     private RecyclerView mRecyclerview;
     private RecyclerView.Adapter mRecyclerViewAdapter;
@@ -190,6 +193,24 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
             }
         });
 
+        //init shadow layouts & their onClick listeners
+        mShadowView = view.findViewById(R.id.shadowView);
+        mShadowView.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+                hideSubMenusFAB();
+            }
+        });
+        mShadowViewToolbar = (getActivity()).findViewById(R.id.shadowViewToolbar);
+        mShadowViewToolbar.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+                hideSubMenusFAB();
+            }
+        });
+
         //init EmptyView variable -> view to show if recyclerView is empty
         emptyView = (TextView) view.findViewById(R.id.emptyView);
 
@@ -247,7 +268,10 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
     //function to show FAB submenu
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void openSubMenusFAB(){
-        mRecyclerview.setForeground(new ColorDrawable(ContextCompat.getColor(getContext(),R.color.colorBackgroundTransparent)));
+        mShadowViewToolbar.setVisibility(VISIBLE);
+        mShadowViewToolbar.setClickable(true);
+        mShadowView.setVisibility(VISIBLE);
+        mShadowView.setClickable(true);
         mButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_remove_circle));
         mAddToDoNormallyLayout.animate().translationY(-getResources().getDimension(R.dimen.standard_70)).withStartAction(new Runnable() {
             @Override
@@ -261,13 +285,18 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
                 mAddToDoFromClipboardLayout.setVisibility(VISIBLE);
             }
         });
+        mAddToDoNormallyLayout.setClickable(true);
+        mAddToDoFromClipboardLayout.setClickable(true);
         fabExpanded = true;
     }
 
     //function to hide FAB submenu
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void hideSubMenusFAB(){
-        mRecyclerview.setForeground(new ColorDrawable(ContextCompat.getColor(getContext(),android.R.color.transparent)));
+        mShadowViewToolbar.setVisibility(GONE);
+        mShadowViewToolbar.setClickable(false);
+        mShadowView.setVisibility(GONE);
+        mShadowView.setClickable(false);
         mButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_todoitem));
         mAddToDoNormallyLayout.animate().translationY(0).withEndAction(new Runnable() {
             @Override
@@ -281,6 +310,8 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
                 mAddToDoFromClipboardLayout.setVisibility(INVISIBLE);
             }
         });
+        mAddToDoNormallyLayout.setClickable(false);
+        mAddToDoFromClipboardLayout.setClickable(false);
         fabExpanded = false;
     }
 
