@@ -89,7 +89,7 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
     private SharedPreferences mSharedPreferences;
 
     //FloatingActionButton variable
-    private FloatingActionButton mButton, mAddToDoNormallyBtn, mAddToDoFromClipboardBtn;
+    private FloatingActionButton mButton;
 
     //Variable to store LinearLayouts containing FABs
     private LinearLayout mAddToDoNormallyLayout, mAddToDoFromClipboardLayout;
@@ -165,9 +165,8 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
             }
         });
 
-        //init AddToDoNormally FAB
-        mAddToDoNormallyBtn = (FloatingActionButton) view.findViewById(R.id.addToDoITemNormallyBtn);
-        mAddToDoNormallyBtn.setOnClickListener(new View.OnClickListener() {
+        //init AddToDoNormally FAB layout onClick listener
+        mAddToDoNormallyLayout.setOnClickListener(new View.OnClickListener() {
             @TargetApi(Build.VERSION_CODES.M)
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -180,9 +179,8 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
             }
         });
 
-        //init AddToDoFromClipboard FAB
-        mAddToDoFromClipboardBtn = (FloatingActionButton) view.findViewById(R.id.addToDoITemFromClipBoardBtn);
-        mAddToDoFromClipboardBtn.setOnClickListener(new View.OnClickListener() {
+        //init AddToDoFromClipboard FAB layout onClick listener
+        mAddToDoFromClipboardLayout.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
