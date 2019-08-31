@@ -6,4 +6,10 @@
         android:icon="@drawable/ic_save_todoitem"
         android:title="Save"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/deleteToDoItem"
+        android:icon="@drawable/ic_delete_todoitem_batch"
+        android:title="Delete"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 </menu>

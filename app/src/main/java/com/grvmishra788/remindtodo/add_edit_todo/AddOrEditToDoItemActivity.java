@@ -197,6 +197,10 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
         Log.d(TAG, "onCreateOptionsMenu() called for AddOrEditToDoItemActivity menu");
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.save_todoitem_menu, menu);
+        if(mActivityStartingIntent.hasExtra(EXTRA_POSITION)){
+            //if intent was sent to edit toDoitem, add delete button in menu
+            menu.findItem(R.id.deleteToDoItem).setVisible(true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -209,11 +213,30 @@ public class AddOrEditToDoItemActivity extends AppCompatActivity implements Date
                 Log.d(TAG, "saveToDoItem selected for AddOrEditToDoItemActivity menu");
                 saveToDoItem();
                 return true;
+            case R.id.deleteToDoItem:
+                Log.d(TAG, "deleteToDoItem selected for AddOrEditToDoItemActivity menu");
+                deleteToDoItem();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    //function to send intent & delete ToDoitem if delete button is pressed in menu
+    private void deleteToDoItem() {
+        Log.d(TAG, "deleteToDoItem() called.");
+        Intent deleteToDoItemIntent = new Intent();
+        int position = mActivityStartingIntent.getIntExtra(EXTRA_POSITION, -1);
+        if(position!=-1){
+            deleteToDoItemIntent.putExtra(EXTRA_POSITION, position);
+        }
+        setResult(RESULT_OK, deleteToDoItemIntent);
+        //finish current activity
+        finish();
+        Log.d(TAG, "deleteToDoItem() completed.");
+    }
+
+    //function to send intent & save ToDoitem if save button is pressed in menu
     private void saveToDoItem() {
         Log.d(TAG, "saveToDoItem() called.");
 

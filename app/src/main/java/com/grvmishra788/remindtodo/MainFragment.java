@@ -559,6 +559,12 @@ public class MainFragment extends Fragment implements SearchView.OnQueryTextList
 
             int position = data.getIntExtra(EXTRA_POSITION, -1);
             if (position != -1) {
+                //if intent was sent to delete ToDoItem, call deleteItem on that position
+                if(!data.hasExtra(EXTRA_DESCRIPTION)){
+                    ((ToDoItemAdapter)mRecyclerViewAdapter).deleteItem(position);
+                    Log.d(TAG, "onActivityResult completed for requestCode = " + Integer.toString(requestCode));
+                    return;
+                }
 
                 String mToDoItemDescription = data.getStringExtra(EXTRA_DESCRIPTION);
                 Date mDate = new Date(data.getExtras().getLong(EXTRA_DATE));
