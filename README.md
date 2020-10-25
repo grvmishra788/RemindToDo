@@ -18,3 +18,9 @@ Designed by [Gaurav Mishra](https://github.com/grvmishra788)
 - Contextual Action Mode to multi select & take action on ToDos
 - Customize various settings
 - and many more...
+
+## App walk-through
+
+Here's a demo of the application - <br/> <br/>
+&nbsp;<img src="https://github.com/grvmishra788/RemindToDo/blob/master/images/rTodo.gif"> <br/><br/>
+The above GIF demonstrates how some of the basic features of the application work.
